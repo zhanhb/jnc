@@ -82,7 +82,7 @@
         <osgi.symbolicName>${project.groupId}.${project.artifactId}</osgi.symbolicName>
         <prerequisites.maven>3.5</prerequisites.maven>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <revision>0.1.BUILD-SNAPSHOT</revision>
+        <revision>0.2.0-SNAPSHOT</revision>
         <slf4j.version>1.7.32</slf4j.version>
         <sortpom-maven-plugin.version>3.0.1</sortpom-maven-plugin.version>
     </properties>
