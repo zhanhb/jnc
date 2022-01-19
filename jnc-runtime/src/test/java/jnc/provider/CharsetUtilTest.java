@@ -15,13 +15,15 @@
  */
 package jnc.provider;
 
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author zhanhb
@@ -46,7 +48,7 @@ public class CharsetUtilTest {
                 // Just test the average bytes per char and max bytes per char are integral
 
                 // assume are charsets with terminator length greater than 1 can encode.
-                assertTrue(charset.name(), charset.canEncode());
+                assertTrue(charset.canEncode(), charset.name());
                 CharsetEncoder encoder = charset.newEncoder();
                 float averageBytesPerChar = encoder.averageBytesPerChar();
                 float maxBytesPerChar = encoder.maxBytesPerChar();
@@ -61,7 +63,7 @@ public class CharsetUtilTest {
 
     private void assertIsIntegral(Charset charset, String name, float v) {
         double floor = Math.floor(v + 0.5);
-        assertEquals(charset + "." + name + " is not integral", floor, v, 1e-5);
+        assertEquals(floor, v, 1e-5, () -> charset + "." + name + " is not integral");
     }
 
 }

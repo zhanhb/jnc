@@ -15,15 +15,18 @@
  */
 package jnc.provider;
 
-import java.nio.charset.StandardCharsets;
 import jnc.foreign.LibraryLoader;
 import jnc.foreign.Platform;
 import jnc.foreign.Pointer;
 import jnc.foreign.typedef.size_t;
 import jnc.foreign.typedef.uint16_t;
 import jnc.foreign.typedef.uint8_t;
-import static org.assertj.core.api.Assertions.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import java.nio.charset.StandardCharsets;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author zhanhb

@@ -15,13 +15,13 @@
  */
 package jnc.provider;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.util.HashMap;
 import java.util.Map;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author zhanhb
@@ -30,7 +30,7 @@ public class ConcurrentWeakIdentityHashMapTest {
 
     private ConcurrentWeakIdentityHashMap<Object, Object> instance;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         instance = new ConcurrentWeakIdentityHashMap<>(16);
     }

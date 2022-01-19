@@ -4,14 +4,12 @@ import jnc.foreign.enums.TypeAlias;
 import jnc.foreign.typedef.size_t;
 import jnc.foreign.typedef.uint32_t;
 import jnc.foreign.typedef.uintptr_t;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings({"UnusedReturnValue", "WeakerAccess", "unused"})
 public class StructTest {
@@ -89,7 +87,7 @@ public class StructTest {
         Uint64Struct uint64Struct = new Uint64Struct();
         uint64Struct.setValue(-1);
         // double has only 52 bit fraction, so the result is 2^64
-        assertEquals(0x1.0p64, uint64Struct.doubleValue(), -1);
+        assertEquals(0x1.0p64, uint64Struct.doubleValue());
     }
 
     @Test
@@ -107,7 +105,7 @@ public class StructTest {
         struct.setValue(0.0);
         assertFalse(struct.getAsBoolean());
         struct.setValue(Double.NaN);
-        assertTrue("Double NaN converted to boolean, expect true, but was false", struct.getAsBoolean());
+        assertTrue(struct.getAsBoolean(), "Double NaN converted to boolean, expect true, but was false");
         struct.setValue(Long.MAX_VALUE);
         assertEquals(Long.MIN_VALUE, struct.getAsLong()); // value truncated
     }

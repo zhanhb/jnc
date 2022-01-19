@@ -1,14 +1,14 @@
 package jnc.foreign;
 
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.atomic.AtomicBoolean;
 import jnc.foreign.byref.IntByReference;
 import jnc.foreign.typedef.size_t;
 import jnc.foreign.typedef.uintptr_t;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class InvokeTest {
 
@@ -16,9 +16,9 @@ public class InvokeTest {
     public void testInvoke() {
         Libc.INSTANCE.memcpy(0, 0, 0);
         Libc.INSTANCE.memcpy(0, 0, 0);
-        assertEquals(Math.sqrt(5), Libm.INSTANCE.sqrt(5), -1);
-        assertEquals(Math.PI, Libm.INSTANCE.atan2(0, -1), -1);
-        assertEquals(Math.PI / 2, Libm.INSTANCE.atan2(1, 0), 1e-14);
+        assertEquals(Math.sqrt(5), Libm.INSTANCE.sqrt(5));
+        assertEquals(Math.PI, Libm.INSTANCE.atan2(0, -1));
+        assertEquals(Math.PI / 2, Libm.INSTANCE.atan2(1, 0));
     }
 
     @Test

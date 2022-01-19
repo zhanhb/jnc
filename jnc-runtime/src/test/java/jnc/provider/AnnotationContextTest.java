@@ -15,18 +15,18 @@
  */
 package jnc.provider;
 
-import java.lang.reflect.Method;
 import jnc.foreign.annotation.In;
 import jnc.foreign.annotation.Typedef;
 import jnc.foreign.enums.TypeAlias;
 import jnc.foreign.typedef.size_t;
 import jnc.foreign.typedef.uint8_t;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Method;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author zhanhb
@@ -44,7 +44,7 @@ public class AnnotationContextTest {
         Method method = Class1.class.getMethod("method");
         Typedef typedef = AnnotationContext.newContext(method)
                 .getAnnotation(Typedef.class);
-        assertNotNull("@Typedef not found on " + method, typedef);
+        assertNotNull(typedef, () -> "@Typedef not found on " + method);
         assertEquals(TypeAlias.size_t, typedef.value());
     }
 
@@ -58,10 +58,10 @@ public class AnnotationContextTest {
 
         AnnotationContext ac = AnnotationContext.newMethodParameterContexts(method)[0];
         Typedef typedef = ac.getAnnotation(Typedef.class);
-        assertNotNull("@Typedef not found on parameter of " + method, typedef);
+        assertNotNull(typedef, () -> "@Typedef not found on parameter of " + method);
         assertEquals(TypeAlias.uint8_t, typedef.value());
 
-        assertTrue("@In not found on parameter of " + method, ac.isAnnotationPresent(In.class));
+        assertTrue(ac.isAnnotationPresent(In.class), () -> "@In not found on parameter of " + method);
     }
 
     @SuppressWarnings({"WeakerAccess", "unused"})

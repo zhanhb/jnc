@@ -1,9 +1,11 @@
 package jnc.provider;
 
-import java.nio.ByteOrder;
 import jnc.foreign.Pointer;
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import java.nio.ByteOrder;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MemoryTest {
 
@@ -30,12 +32,9 @@ public class MemoryTest {
                     assertEquals(MAGIC, array[j]);
                 }
             }
-            assertEquals(MAGIC, Double.doubleToLongBits(memory.getDouble(off)), -1);
-            if (LITTLE_ENDIAN) {
-                assertEquals((int) MAGIC, Float.floatToIntBits(memory.getFloat(off)));
-            } else {
-                assertEquals((int) (MAGIC >> 8), Float.floatToIntBits(memory.getFloat(off)));
-            }
+            assertEquals(Double.longBitsToDouble(MAGIC), memory.getDouble(off));
+            float expect = Float.intBitsToFloat((int) (LITTLE_ENDIAN ? MAGIC : (MAGIC >> 8)));
+            assertEquals(expect, memory.getFloat(off));
         }
     }
 

@@ -15,18 +15,24 @@
  */
 package jnc.provider;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.*;
-import java.util.*;
-import static java.util.stream.Collectors.*;
-import java.util.stream.IntStream;
 import jnc.foreign.Pointer;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertArrayEquals;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 /**
  * @author zhanhb
@@ -53,6 +59,12 @@ public class StringCodingTest {
             return false;
         }
         return s.equals(ASCII);
+    }
+
+    @BeforeAll
+    public static void setUpClass() {
+        assertThat(asciiCompatibleCharsets).describedAs("asciiCompatibleCharsets")
+                .isNotEmpty();
     }
 
     /**
@@ -84,7 +96,7 @@ public class StringCodingTest {
             if (charset.canEncode()) {
                 memory.putString(0, str, charset);
                 memory.getBytes(0, bytes, 0, bytes.length);
-                assertArrayEquals(charset.name(), expect, bytes);
+                assertArrayEquals(expect, bytes, charset.name());
                 assertThat(memory.getString(0, charset)).isEqualTo(str);
                 assertThat(memory.slice(32, 40).getString(1, charset))
                         .isEqualTo(str.substring(33, 40));

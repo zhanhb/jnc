@@ -1,19 +1,22 @@
 package jnc.provider;
 
-import java.nio.ByteOrder;
-import java.util.HashMap;
-import java.util.stream.Collectors;
 import jnc.foreign.NativeType;
 import jnc.foreign.Pointer;
 import jnc.foreign.TestLibs;
 import jnc.foreign.enums.CallingConvention;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.ByteOrder;
+import java.util.HashMap;
+import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NativeMethodsTest {
 
@@ -48,16 +51,15 @@ public class NativeMethodsTest {
                 .isInstanceOf(NullPointerException.class);
     }
 
-    @Test
+    @RepeatedTest(10)
     public void testDlopen() {
-        for (int i = 0; i < 10; ++i) {
-            NativeLibrary.open(null, 0);
-        }
+        NativeLibrary.open(null, 0);
     }
 
     @Test
     public void testInitAlias() {
         log.info("initAlias");
+        //noinspection ConstantConditions
         assertThatThrownBy(() -> NA.initAlias(null))
                 .isInstanceOf(NullPointerException.class);
         HashMap<String, Integer> map = new HashMap<>(50);
@@ -95,8 +97,8 @@ public class NativeMethodsTest {
     @Test
     public void testAllocateMemory() {
         log.info("allocateMemory");
-        long size = 1000;
-        for (int i = 0; i < 10000000; ++i) {
+        long size = 1 << 18;
+        for (int i = 0; i < (1 << 16); ++i) {
             long addr = NA.allocateMemory(size);
             NA.freeMemory(addr);
         }
@@ -126,10 +128,10 @@ public class NativeMethodsTest {
         return str.chars().mapToObj(x -> String.format("%04x", x)).collect(Collectors.joining(""));
     }
 
-    private void assertHexEquals(String message, String expect, String result) {
+    private void assertHexEquals(String expect, String result, String message) {
         String expectHex = str2Hex(expect);
         String resultHex = str2Hex(result);
-        assertEquals(message, expectHex, resultHex);
+        assertEquals(expectHex, resultHex, message);
     }
 
     /**
@@ -142,6 +144,7 @@ public class NativeMethodsTest {
         long address = memory.address();
         String value = "\u0102\u0304\u0506\u0708\u0000\u0807\u0000";
 
+        //noinspection ConstantConditions
         assertThatThrownBy(() -> NA.putStringChar16(address, null))
                 .isInstanceOf(NullPointerException.class);
 
@@ -150,33 +153,46 @@ public class NativeMethodsTest {
 
         NA.putStringChar16(address, value);
 
-        char[] arr1 = new char[4], arr2 = "\u0102\u0304\u0506\u0708".toCharArray();
-        memory.getCharArray(0, arr1, 0, arr1.length);
-        assertArrayEquals(arr2, arr1);
+        {
+            String expect = value.substring(0, 4);
+            char[] arr1 = new char[4];
+            memory.getCharArray(0, arr1, 0, arr1.length);
+            assertArrayEquals(expect.toCharArray(), arr1);
 
-        assertHexEquals("aligned access", "\u0102\u0304\u0506\u0708", NA.getStringChar16(address, Long.MAX_VALUE));
-        String expect;
-        if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
-            expect = "\u0203\u0405\u0607\u0800\u0008\u0700";
-        } else {
-            expect = "\u0401\u0603\u0805\u0007\u0700\u0008";
+            assertHexEquals(expect, NA.getStringChar16(address, Long.MAX_VALUE), "aligned access");
+            assertHexEquals(expect, NA.getStringChar16(address, 8), "aligned access with limit");
+            assertHexEquals(value.substring(0, 3), NA.getStringChar16(address, 7), "aligned access with limit");
         }
-        assertHexEquals("unaligned access", expect, NA.getStringChar16(address + 1, Long.MAX_VALUE));
 
-        assertHexEquals("aligned access with limit", "\u0102\u0304\u0506\u0708", NA.getStringChar16(address, 8));
-        assertHexEquals("aligned access with limit", "\u0102\u0304\u0506", NA.getStringChar16(address, 7));
-        if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
-            expect = "\u0203\u0405\u0607\u0800\u0008\u0700";
-        } else {
-            expect = "\u0401\u0603\u0805\u0007\u0700\u0008";
+        {
+            String expect;
+            if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
+                expect = "\u0203\u0405\u0607\u0800\u0008\u0700";
+            } else {
+                expect = "\u0401\u0603\u0805\u0007\u0700\u0008";
+            }
+            assertHexEquals(expect, NA.getStringChar16(address + 1, Long.MAX_VALUE), "unaligned access");
         }
-        assertHexEquals("unaligned access with limit", expect, NA.getStringChar16(address + 1, 12));
-        if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
-            expect = "\u0203\u0405\u0607\u0800\u0008";
-        } else {
-            expect = "\u0401\u0603\u0805\u0007\u0700";
+
+        {
+            String expect;
+            if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
+                expect = "\u0203\u0405\u0607\u0800\u0008\u0700";
+            } else {
+                expect = "\u0401\u0603\u0805\u0007\u0700\u0008";
+            }
+            assertHexEquals(expect, NA.getStringChar16(address + 1, 12), "unaligned access with limit");
         }
-        assertHexEquals("unaligned access with limit", expect, NA.getStringChar16(address + 1, 11));
+
+        {
+            String expect;
+            if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
+                expect = "\u0203\u0405\u0607\u0800\u0008";
+            } else {
+                expect = "\u0401\u0603\u0805\u0007\u0700";
+            }
+            assertHexEquals(expect, NA.getStringChar16(address + 1, 11), "unaligned access with limit");
+        }
     }
 
     /**
@@ -185,11 +201,12 @@ public class NativeMethodsTest {
     @Test
     public void testGetStringUTFLength() {
         log.info("getStringUTFLength");
+        //noinspection ConstantConditions
         assertThatThrownBy(() -> NA.getStringUTFLength(null))
                 .isInstanceOf(NullPointerException.class);
-        assertThat(NA.getStringUTFLength("")).isEqualTo(0);
-        assertThat(NA.getStringUTFLength("abcdef")).isEqualTo(6);
-        assertThat(NA.getStringUTFLength("\u0000")).isEqualTo(2);
+        assertEquals(0, NA.getStringUTFLength(""));
+        assertEquals(6, NA.getStringUTFLength("abcdef"));
+        assertEquals(2, NA.getStringUTFLength("\u0000"));
     }
 
     /**

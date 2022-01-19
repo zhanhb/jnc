@@ -1,30 +1,30 @@
 package jnc.foreign;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import jnc.foreign.annotation.Stdcall;
 import jnc.foreign.byref.IntByReference;
 import jnc.foreign.typedef.int32_t;
 import jnc.foreign.typedef.uintptr_t;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @SuppressWarnings("WeakerAccess")
 public class WindowsTest {
 
     private static final Logger log = LoggerFactory.getLogger(WindowsTest.class);
 
-    @BeforeClass
+    @BeforeAll
     public static void setupClass() {
-        assumeTrue("os.name", Platform.getNativePlatform().getOS().isWindows());
+        assumeTrue(Platform.getNativePlatform().getOS().isWindows(), "os.name");
     }
 
     @Test
@@ -85,6 +85,7 @@ public class WindowsTest {
             });
         }
         es.shutdown();
+        //noinspection ResultOfMethodCallIgnored
         es.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
         if (atomic.get() != null) {
             throw atomic.get();

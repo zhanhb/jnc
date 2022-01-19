@@ -15,6 +15,12 @@
  */
 package jnc.provider;
 
+import jnc.foreign.LibraryLoader;
+import jnc.foreign.Platform;
+import jnc.foreign.typedef.int32_t;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
@@ -23,13 +29,10 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Iterator;
 import java.util.function.Consumer;
-import jnc.foreign.LibraryLoader;
-import jnc.foreign.Platform;
-import jnc.foreign.typedef.int32_t;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.*;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author zhanhb
@@ -104,6 +107,11 @@ public class ProxyBuilderTest {
         }
     }
 
+    @Test
+    public void testNotExists() {
+        assertThatThrownBy(Libc.INSTANCE::notexists).isInstanceOf(UnsatisfiedLinkError.class);
+    }
+
     private <T> void testDefaultMethodOf(
             Class<T> interfaceClass, Consumer<T> consumer,
             Class<? extends Throwable> exceptionClass) {
@@ -122,8 +130,8 @@ public class ProxyBuilderTest {
 
     // TODO, failed on jdk8
     //  failed on jdk9 if run with --illegal-access=deny
-    @SuppressWarnings("rawtypes")
-    // @Test
+    @Disabled
+    @Test
     public void testDefaultMethod() {
         testDefaultMethodOf(Iterator.class, Iterator::remove, UnsupportedOperationException.class);
     }
@@ -201,7 +209,6 @@ public class ProxyBuilderTest {
         boolean isalnum(int ch);
 
         // Should be ok if some function not exists
-        @SuppressWarnings("unused")
         void notexists();
 
     }

@@ -1,8 +1,9 @@
 package jnc.provider;
 
 import jnc.foreign.Pointer;
+import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import org.junit.Test;
 
 public class AllocatedMemoryTest {
 

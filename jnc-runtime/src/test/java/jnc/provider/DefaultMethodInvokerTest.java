@@ -15,20 +15,18 @@
  */
 package jnc.provider;
 
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author zhanhb
  */
 public class DefaultMethodInvokerTest {
-
-    private static final Logger log = LoggerFactory.getLogger(DefaultMethodInvokerTest.class);
 
     /**
      * Test of getInstance method, of class DefaultMethodInvoker.
@@ -55,7 +53,7 @@ public class DefaultMethodInvokerTest {
         }
     }
 
-    private class TestInterfaceImpl implements TestInterface {
+    private static class TestInterfaceImpl implements TestInterface {
 
         @Override
         public final void defaultMethod(AtomicInteger integer) {
@@ -70,7 +68,7 @@ public class DefaultMethodInvokerTest {
         }
     }
 
-    private class ThrowImpl implements Throw {
+    private static class ThrowImpl implements Throw {
 
         @Override
         public void defaultMethod() {

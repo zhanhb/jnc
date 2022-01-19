@@ -1,8 +1,9 @@
 package jnc.foreign;
 
 import jnc.foreign.annotation.Pack;
-import static org.junit.Assert.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UnionTest {
 
@@ -30,13 +31,13 @@ public class UnionTest {
         Test1 test1 = new Test1();
         long magic = 0x0102030405060708L;
         test1.setJ(magic);
-        assertEquals(Double.longBitsToDouble(magic), test1.getD(), -1);
+        assertEquals(Double.longBitsToDouble(magic), test1.getD());
     }
 
     private void expectSizeAndAlign(Struct test1, int size, int align) {
         String name = test1.getClass().getSimpleName();
-        assertEquals("sizeof(" + name + ")", size, test1.size());
-        assertEquals("alignof(" + name + ")", align, test1.alignment());
+        assertEquals(size, test1.size(), () -> "sizeof(" + name + ")");
+        assertEquals(align, test1.alignment(), () -> "alignof(" + name + ")");
     }
 
     @SuppressWarnings("unused")

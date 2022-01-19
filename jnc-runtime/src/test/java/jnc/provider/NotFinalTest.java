@@ -15,6 +15,14 @@
  */
 package jnc.provider;
 
+import jnc.foreign.Struct;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -27,18 +35,10 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import jnc.foreign.Struct;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author zhanhb
  */
-@RunWith(Parameterized.class)
 public class NotFinalTest {
 
     private static final Logger log = LoggerFactory.getLogger(NotFinalTest.class);
@@ -48,7 +48,7 @@ public class NotFinalTest {
         return (mod & SYNTHETIC) != 0;
     }
 
-    private static void visitMethods(List<Object[]> list, Class<?> klass) {
+    private static void visitMethods(List<Arguments> list, Class<?> klass) {
         Method[] methods = klass.getDeclaredMethods();
         for (Method method : methods) {
             RequireType requireType;
@@ -65,12 +65,11 @@ public class NotFinalTest {
             } else {
                 requireType = RequireType.SHOULD_HAVE;
             }
-            list.add(new Object[]{requireType, method});
+            list.add(Arguments.arguments(requireType, method));
         }
     }
 
-    @Parameterized.Parameters(name = "{index} {1} {0}")
-    public static List<Object[]> data() throws Exception {
+    public static List<Arguments> data() throws Exception {
         ProtectionDomain protectionDomain = Struct.class.getProtectionDomain();
         URL location = protectionDomain.getCodeSource().getLocation();
         Path directory = Paths.get(location.toURI());
@@ -88,7 +87,7 @@ public class NotFinalTest {
                 .filter(klass -> !isSynthetic(klass.getModifiers()))
                 .collect(Collectors.toList());
 
-        List<Object[]> list = new ArrayList<>(classes.size() * 4);
+        List<Arguments> list = new ArrayList<>(classes.size() * 4);
         for (Class<?> klass : classes) {
             RequireType requireType;
             int modifiers = klass.getModifiers();
@@ -105,26 +104,18 @@ public class NotFinalTest {
                     visitMethods(list, klass);
                 }
             }
-            list.add(new Object[]{requireType, klass});
+            list.add(Arguments.arguments(requireType, klass));
         }
         return list;
     }
 
-    private final RequireType requireType;
-    private final AnnotatedElement ae;
-
-    @SuppressWarnings("NonPublicExported")
-    public NotFinalTest(RequireType requireType, AnnotatedElement ae) {
-        this.requireType = requireType;
-        this.ae = ae;
-    }
-
-    @Test
-    public void test() {
+    @MethodSource("data")
+    @ParameterizedTest(name = "{index} {1} {0}")
+    public void test(RequireType requireType, AnnotatedElement ae) {
         requireType.check(ae);
     }
 
-    private enum RequireType {
+    public enum RequireType {
 
         SHOULD_HAVE() {
             @Override

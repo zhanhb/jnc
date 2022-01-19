@@ -6,11 +6,12 @@ import jnc.foreign.Pointer;
 import jnc.foreign.TestLibs;
 import jnc.foreign.enums.CallingConvention;
 import jnc.foreign.enums.TypeAlias;
-import static org.junit.Assert.assertEquals;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CifContainerTest {
 
@@ -32,8 +33,8 @@ public class CifContainerTest {
         assertEquals(Math.PI, result, 1e-14);
     }
 
-    // symbol not found on windows x86
-    @Ignore
+    // TODO symbol not found on windows x86
+    @Disabled
     @Test
     public void testAcosf() {
         log.info("test acosf");

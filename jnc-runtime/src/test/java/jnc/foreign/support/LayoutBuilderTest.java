@@ -15,9 +15,10 @@
  */
 package jnc.foreign.support;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author zhanhb
@@ -47,8 +48,8 @@ public class LayoutBuilderTest {
 
         // only an empty field has been added, other operations are failed
         // the builder should not changed
-        assertThat(builder.size()).isEqualTo(0);
-        assertThat(builder.alignment()).isEqualTo(1);
+        assertEquals(0, builder.size());
+        assertEquals(1, builder.alignment());
     }
 
 }

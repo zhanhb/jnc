@@ -15,16 +15,18 @@
  */
 package jnc.provider;
 
-import java.lang.reflect.Method;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import jnc.foreign.LoadOptions;
 import jnc.foreign.annotation.DefaultConvention;
 import jnc.foreign.annotation.Stdcall;
 import jnc.foreign.enums.CallingConvention;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Method;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author zhanhb
@@ -36,7 +38,7 @@ public class InvocationLibraryTest {
     private static TypeFactory typeFactory;
     private static TypeHandlerFactory THR;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws NoSuchMethodException {
         Method dlsym = Library.class.getMethod("dlsym", String.class);
         ProxyBuilder builder = ProxyBuilder.builder();
@@ -71,41 +73,41 @@ public class InvocationLibraryTest {
 
         {
             test(NoConvention.class, defaultCallingConventionOptions, function -> {
-                assertThat(function.apply("stdcall").getCallingConvention()).isEqualTo(CallingConvention.STDCALL);
-                assertThat(function.apply("cdecl").getCallingConvention()).isEqualTo(CallingConvention.DEFAULT);
-                assertThat(function.apply("noConvention").getCallingConvention()).isEqualTo(CallingConvention.DEFAULT);
+                assertEquals(CallingConvention.STDCALL, function.apply("stdcall").getCallingConvention());
+                assertEquals(CallingConvention.DEFAULT, function.apply("cdecl").getCallingConvention());
+                assertEquals(CallingConvention.DEFAULT, function.apply("noConvention").getCallingConvention());
             });
 
             test(StdcallConvention.class, defaultCallingConventionOptions, function -> {
-                assertThat(function.apply("stdcall").getCallingConvention()).isEqualTo(CallingConvention.STDCALL);
-                assertThat(function.apply("cdecl").getCallingConvention()).isEqualTo(CallingConvention.DEFAULT);
-                assertThat(function.apply("noConvention").getCallingConvention()).isEqualTo(CallingConvention.STDCALL);
+                assertEquals(CallingConvention.STDCALL, function.apply("stdcall").getCallingConvention());
+                assertEquals(CallingConvention.DEFAULT, function.apply("cdecl").getCallingConvention());
+                assertEquals(CallingConvention.STDCALL, function.apply("noConvention").getCallingConvention());
             });
 
             test(DefaultConventionLib.class, defaultCallingConventionOptions, function -> {
-                assertThat(function.apply("stdcall").getCallingConvention()).isEqualTo(CallingConvention.STDCALL);
-                assertThat(function.apply("cdecl").getCallingConvention()).isEqualTo(CallingConvention.DEFAULT);
-                assertThat(function.apply("noConvention").getCallingConvention()).isEqualTo(CallingConvention.DEFAULT);
+                assertEquals(CallingConvention.STDCALL, function.apply("stdcall").getCallingConvention());
+                assertEquals(CallingConvention.DEFAULT, function.apply("cdecl").getCallingConvention());
+                assertEquals(CallingConvention.DEFAULT, function.apply("noConvention").getCallingConvention());
             });
         }
 
         {
             test(NoConvention.class, stdcallOptions, function -> {
-                assertThat(function.apply("stdcall").getCallingConvention()).isEqualTo(CallingConvention.STDCALL);
-                assertThat(function.apply("cdecl").getCallingConvention()).isEqualTo(CallingConvention.DEFAULT);
-                assertThat(function.apply("noConvention").getCallingConvention()).isEqualTo(CallingConvention.STDCALL);
+                assertEquals(CallingConvention.STDCALL, function.apply("stdcall").getCallingConvention());
+                assertEquals(CallingConvention.DEFAULT, function.apply("cdecl").getCallingConvention());
+                assertEquals(CallingConvention.STDCALL, function.apply("noConvention").getCallingConvention());
             });
 
             test(StdcallConvention.class, stdcallOptions, function -> {
-                assertThat(function.apply("stdcall").getCallingConvention()).isEqualTo(CallingConvention.STDCALL);
-                assertThat(function.apply("cdecl").getCallingConvention()).isEqualTo(CallingConvention.DEFAULT);
-                assertThat(function.apply("noConvention").getCallingConvention()).isEqualTo(CallingConvention.STDCALL);
+                assertEquals(CallingConvention.STDCALL, function.apply("stdcall").getCallingConvention());
+                assertEquals(CallingConvention.DEFAULT, function.apply("cdecl").getCallingConvention());
+                assertEquals(CallingConvention.STDCALL, function.apply("noConvention").getCallingConvention());
             });
 
             test(DefaultConventionLib.class, stdcallOptions, function -> {
-                assertThat(function.apply("stdcall").getCallingConvention()).isEqualTo(CallingConvention.STDCALL);
-                assertThat(function.apply("cdecl").getCallingConvention()).isEqualTo(CallingConvention.DEFAULT);
-                assertThat(function.apply("noConvention").getCallingConvention()).isEqualTo(CallingConvention.DEFAULT);
+                assertEquals(CallingConvention.STDCALL, function.apply("stdcall").getCallingConvention());
+                assertEquals(CallingConvention.DEFAULT, function.apply("cdecl").getCallingConvention());
+                assertEquals(CallingConvention.DEFAULT, function.apply("noConvention").getCallingConvention());
             });
         }
     }

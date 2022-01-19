@@ -15,6 +15,9 @@
  */
 package jnc.provider;
 
+import jnc.foreign.Pointer;
+import org.junit.jupiter.api.Test;
+
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -22,18 +25,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import jnc.foreign.Pointer;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author zhanhb
  */
 public class MemoryAccessorTest {
 
-    private static final Logger log = LoggerFactory.getLogger(MemoryAccessorTest.class);
     // use known character
     // jdk will convert to 0xfdff if character is not a valid utf-8 char
     private static final String UTF_STRING = "\u20ac\u01cb\u051c\u4f60\u597d";
@@ -58,14 +57,12 @@ public class MemoryAccessorTest {
         }).collect(Collectors.joining());
     }
 
-    @SuppressWarnings("unused")
     private String str2Hex(String str) {
         return str.chars().mapToObj(x -> String.format("%04x", x)).collect(Collectors.joining(""));
     }
 
     private void assertStringEquals(String expect, String result) {
-        // assertThat(str2Hex(result)).isEqualTo(str2Hex(expect));
-        assertThat(result).isEqualTo(expect);
+        assertEquals(str2Hex(expect), str2Hex(result));
     }
 
     private void testStringUTF(Pointer memory, String str) {
@@ -132,9 +129,9 @@ public class MemoryAccessorTest {
         pointer.putLong(0, spaces);
         pointer.putLong(8, spaces);
         Pointer slice = pointer.slice(6, 9);
-        assertThat(slice.getStringUTF(1)).isEqualTo("  ");
-        assertThat(slice.getString(0, StandardCharsets.UTF_16BE)).isEqualTo("\u2020");
-        assertThat(slice.getString(0, StandardCharsets.UTF_16LE)).isEqualTo("\u2020");
+        assertEquals("  ", slice.getStringUTF(1));
+        assertEquals("\u2020", slice.getString(0, StandardCharsets.UTF_16BE));
+        assertEquals("\u2020", slice.getString(0, StandardCharsets.UTF_16LE));
     }
 
 }

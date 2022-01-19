@@ -1,15 +1,16 @@
 package jnc.foreign;
 
 import jnc.foreign.typedef.pid_t;
-import static org.junit.Assume.assumeFalse;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class GetPidTest {
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        assumeFalse("os.name", Platform.getNativePlatform().getOS().isWindows());
+        assumeFalse(Platform.getNativePlatform().getOS().isWindows(), "os.name");
     }
 
     @Test

@@ -15,27 +15,24 @@
  */
 package jnc.provider;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Set;
 import jnc.foreign.NativeType;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.AfterClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author zhanhb
  */
-// ignore this test to show code coverage
-@Ignore
-@RunWith(Parameterized.class)
+// disable this test to show code coverage
+@Disabled
 public class PrimitiveConverterTest {
 
     private static final Logger log = LoggerFactory.getLogger(PrimitiveConverterTest.class);
@@ -44,38 +41,30 @@ public class PrimitiveConverterTest {
     private static final Set<RawConverter<?>> handlers
             = Collections.newSetFromMap(new IdentityHashMap<>(44));
 
-    @Parameterized.Parameters(name = "{index} {0} {1}")
-    public static List<Object[]> data() {
-        List<Object[]> list = new ArrayList<>(8 * (NativeType.values().length - 1));
+    public static List<Arguments> data() {
+        List<Arguments> list = new ArrayList<>(8 * (NativeType.values().length - 1));
         for (Class<?> primitiveType : Primitives.allPrimitiveTypes()) {
             for (NativeType type : NativeType.values()) {
                 if (type == NativeType.POINTER) {
                     continue;
                 }
-                list.add(new Object[]{primitiveType, type});
+                list.add(Arguments.arguments(primitiveType, type));
             }
         }
         return list;
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() {
         log.info("total function number: {}", handlers.size());
-    }
-
-    private final Class<?> klass;
-    private final NativeType type;
-
-    public PrimitiveConverterTest(Class<?> klass, NativeType type) {
-        this.klass = klass;
-        this.type = type;
     }
 
     /**
      * Test of getConverters method, of class PrimitiveConverter.
      */
-    @Test
-    public void testGetConverters() {
+    @MethodSource("data")
+    @ParameterizedTest(name = "{index} {0} {1}")
+    public void testGetConverters(Class<?> klass, NativeType type) {
         RawConverter<?> handler = pc.getConverters(klass).apply(type);
         assertThat(handler)
                 .describedAs("class=%s,native=%s", klass, type)

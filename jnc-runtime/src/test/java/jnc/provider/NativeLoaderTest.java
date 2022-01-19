@@ -15,18 +15,20 @@
  */
 package jnc.provider;
 
+import jnc.foreign.Platform;
+import jnc.foreign.exception.JniLoadingException;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import jnc.foreign.Platform;
-import jnc.foreign.exception.JniLoadingException;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author zhanhb
@@ -47,6 +49,7 @@ public class NativeLoaderTest {
         NativeAccessor nativeAccessor = instance.createProxy(cause);
         nativeAccessor.getCifInfo();
         assertFalse(nativeAccessor.onFinalize(null));
+        //noinspection ConstantConditions
         nativeAccessor.getMethodId(null);
         assertThatThrownBy(() -> nativeAccessor.allocateMemory(0))
                 .isExactlyInstanceOf(JniLoadingException.class)
@@ -58,6 +61,7 @@ public class NativeLoaderTest {
         NativeAccessor nativeAccessor = instance.createProxy(new JniLoadingException(message));
         nativeAccessor.getCifInfo();
         assertFalse(nativeAccessor.onFinalize(null));
+        //noinspection ConstantConditions
         nativeAccessor.getMethodId(null);
         assertThatThrownBy(() -> nativeAccessor.allocateMemory(0))
                 .isExactlyInstanceOf(JniLoadingException.class)

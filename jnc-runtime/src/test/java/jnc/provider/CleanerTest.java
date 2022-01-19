@@ -15,15 +15,15 @@
  */
 package jnc.provider;
 
+import org.junit.jupiter.api.Test;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import org.junit.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author zhanhb
@@ -44,7 +44,7 @@ public class CleanerTest {
             AtomicBoolean executed = new AtomicBoolean();
             cleaner.register(list, () -> executed.set(true));
             list.cleanAll();
-            assertTrue("performRemove not executed", executed.get());
+            assertTrue(executed.get(), "performRemove not executed");
         }
 
         {
@@ -112,10 +112,11 @@ public class CleanerTest {
         } finally {
             es.shutdown();
         }
+        //noinspection ResultOfMethodCallIgnored
         es.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
         // this method seems to be very slow
         list.cleanAll();
-        assertThat(atomicInteger.get()).isEqualTo(nTotal);
+        assertEquals(nTotal, atomicInteger.get());
     }
 
 }

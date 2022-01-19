@@ -1,16 +1,17 @@
 package jnc.foreign;
 
 import jnc.foreign.annotation.Pack;
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("unused")
 public class AlignTest {
 
     private void assertSizeAndAlign(Struct struct, int size, int alignment) {
         String msg = struct.getClass().getSimpleName();
-        assertEquals("sizeof(" + msg + ")", size, struct.size());
-        assertEquals("alignof(" + msg + ")", alignment, struct.alignment());
+        assertEquals(size, struct.size(), () -> "sizeof(" + msg + ")");
+        assertEquals(alignment, struct.alignment(), () -> "alignof(" + msg + ")");
     }
 
     @Test

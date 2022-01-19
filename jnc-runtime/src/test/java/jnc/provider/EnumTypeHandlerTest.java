@@ -15,22 +15,18 @@
  */
 package jnc.provider;
 
-import jnc.foreign.Foreign;
-import jnc.foreign.LibraryLoader;
-import jnc.foreign.NativeType;
-import jnc.foreign.Platform;
-import jnc.foreign.Struct;
-import jnc.foreign.Type;
+import jnc.foreign.*;
 import jnc.foreign.annotation.Continuously;
 import jnc.foreign.exception.InvalidAnnotationException;
 import jnc.foreign.exception.UnmappableNativeValueException;
 import jnc.foreign.typedef.int32_t;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertTrue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author zhanhb
@@ -53,7 +49,7 @@ public class EnumTypeHandlerTest {
      * Test of getInstance method, of class EnumTypeHandler.
      */
     @Test
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void testGetInstance() {
         log.info("getInstance");
         assertThatThrownBy(() -> EnumTypeHandler.getInstance(Enum.class)).isInstanceOf(IllegalArgumentException.class);

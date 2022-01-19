@@ -15,19 +15,15 @@
  */
 package jnc.foreign.typedef;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import jnc.foreign.Platform;
 import jnc.foreign.enums.TypeAlias;
 import jnc.foreign.spi.ForeignProvider;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author zhanhb
@@ -57,16 +53,14 @@ public class TypedefTest {
             for (String subPackage : subPackages) {
                 try {
                     Class.forName(basePackage + "." + subPackage + "." + typeAlias);
-                    assertThat(found.compareAndSet(null, subPackage))
-                            .describedAs("duplicate annotation '%s' found both in package '%s' and '%s'", typeAlias, found, subPackage)
-                            .isTrue();
                 } catch (ClassNotFoundException ignored) {
+                    continue;
                 }
+                assertTrue(found.compareAndSet(null, subPackage),
+                        () -> String.format("duplicate annotation '%s' found both in package '%s' and '%s'", typeAlias, found, subPackage));
             }
             String pkg = found.get();
-            assertThat(pkg)
-                    .describedAs("alias %s not found in any packages", typeAlias)
-                    .isNotNull();
+            assertNotNull(pkg, () -> String.format("alias %s not found in any packages", typeAlias));
             map.computeIfAbsent(pkg, __ -> new ArrayList<>(16)).add(typeAlias);
         }
 
@@ -90,16 +84,19 @@ public class TypedefTest {
             boolean s = supported.contains(key) || key.isEmpty();
             for (TypeAlias typeAlias : value) {
                 boolean result;
-                try {
-                    foreignProvider.getForeign().findType(typeAlias);
+                label:
+                {
+                    try {
+                        foreignProvider.getForeign().findType(typeAlias);
+                    } catch (UnsupportedOperationException ex) {
+                        result = false;
+                        break label;
+                    }
                     result = true;
-                } catch (UnsupportedOperationException ex) {
-                    result = false;
                 }
                 String msg = "alias support '%s' should %sbe supported on platform %s, but got %s";
-                assertThat(s == result)
-                        .describedAs(msg, typeAlias, s ? "" : "not ", os, result ? "supported" : "unsupported")
-                        .isTrue();
+                assertEquals(s, result, () ->
+                        String.format(msg, typeAlias, s ? "" : "not ", os, result ? "supported" : "unsupported"));
             }
         }
     }

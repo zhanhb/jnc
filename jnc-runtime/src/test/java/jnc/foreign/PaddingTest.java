@@ -15,9 +15,10 @@
  */
 package jnc.foreign;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author zhanhb
@@ -43,7 +44,7 @@ public class PaddingTest {
     public void test() {
         assertThatThrownBy(() -> withPadding(0)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> withPadding(3, 3)).isInstanceOf(IllegalArgumentException.class);
-        assertThat(withPadding(1).size()).isEqualTo(1);
+        assertEquals(1, withPadding(1).size());
         assertThatThrownBy(() -> withPadding(9, 2)).isInstanceOf(IllegalArgumentException.class);
     }
 
