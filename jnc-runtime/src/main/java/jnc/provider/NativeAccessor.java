@@ -194,7 +194,7 @@ interface NativeAccessor {
 
     void freeMemory(long address);
 
-    /*
+    /**
      * align<<32|size
      */
     default long getCifInfo() {
