@@ -97,6 +97,13 @@ final class State {
         }
     }
 
+    void checkSetMemory(Struct struct) {
+        if (state >= STATE_MEMORY_ALLOCATED) {
+            throw toException(struct, state, "set memory");
+        }
+        state = STATE_MEMORY_ALLOCATED;
+    }
+
     @Override
     public String toString() {
         return toString(state);

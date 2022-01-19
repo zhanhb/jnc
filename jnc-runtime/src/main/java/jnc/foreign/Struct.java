@@ -1,5 +1,6 @@
 package jnc.foreign;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
@@ -89,6 +90,12 @@ public class Struct {
             memory = m;
         }
         return m;
+    }
+
+    public final void setMemory(jnc.foreign.Pointer memory) {
+        Objects.requireNonNull(memory, "memory");
+        state.checkSetMemory(this);
+        this.memory = memory;
     }
 
     @Nullable
