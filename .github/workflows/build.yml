@@ -100,10 +100,11 @@ jobs:
           cache-name: maven-dependencies
         with:
           path: ~/.m2/repository
-          key: ${{ env.cache-name }}-${{ github.workflow }}-${{ hashFiles('.github/**', '**/pom.xml') }}
+          key: ${{ env.cache-name }}-${{ runner.os }}-${{ matrix.native }}-${{ github.workflow }}-${{ hashFiles('.github/**', '**/pom.xml') }}
           restore-keys: |
-            ${{ env.cache-name }}-${{ github.workflow }}-
-            ${{ env.cache-name }}-
+            ${{ env.cache-name }}-${{ runner.os }}-${{ matrix.native }}-${{ github.workflow }}-
+            ${{ env.cache-name }}-${{ runner.os }}-${{ matrix.native }}-
+            ${{ env.cache-name }}-${{ runner.os }}-
       - env:
           ARCH: ${{ matrix.arch }}
           BUILD_NATIVE: ${{ matrix.native }}
@@ -152,10 +153,11 @@ jobs:
           cache-name: maven-dependencies
         with:
           path: ~/.m2/repository
-          key: ${{ env.cache-name }}-${{ github.workflow }}-${{ hashFiles('.github/**', '**/pom.xml') }}
+          key: ${{ env.cache-name }}-${{ runner.os }}-deploy-${{ github.workflow }}-${{ hashFiles('.github/**', '**/pom.xml') }}
           restore-keys: |
-            ${{ env.cache-name }}-${{ github.workflow }}-
-            ${{ env.cache-name }}-
+            ${{ env.cache-name }}-${{ runner.os }}-deploy-${{ github.workflow }}-
+            ${{ env.cache-name }}-${{ runner.os }}-deploy-
+            ${{ env.cache-name }}-${{ runner.os }}-
       - name: Maven Deploy
         env:
           MAVEN_USERNAME: ${{ secrets.SONATYPE_USERNAME }}

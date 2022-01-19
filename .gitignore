@@ -3,6 +3,7 @@
 .LCKpom.xml~
 .flattened-pom.xml
 .idea/
+/.vagrant/
 hs_err_pid*.log
 jnc_provider_*.h
 nb-configuration.xml

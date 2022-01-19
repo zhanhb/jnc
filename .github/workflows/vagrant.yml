@@ -1,0 +1,48 @@
+name: vagrant
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - freebsd-12.2
+          - freebsd-12.2-i386
+          - openbsd-6.9
+          - mcandre-openbsd-i386
+        native:
+          - ""
+          - 1
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        env:
+          cache-name: maven-dependencies
+        with:
+          path: ~/.m2/repository
+          key: ${{ env.cache-name }}-${{ runner.os }}-${{ matrix.native }}-${{ github.workflow }}-${{ hashFiles('.github/**', '**/pom.xml') }}
+          restore-keys: |
+            ${{ env.cache-name }}-${{ runner.os }}-${{ matrix.native }}-${{ github.workflow }}-
+            ${{ env.cache-name }}-${{ runner.os }}-${{ matrix.native }}-
+            ${{ env.cache-name }}-${{ runner.os }}-
+      - name: Run with vagrant
+        run: |
+          machine='${{ matrix.image }}'
+          vagrant up "$machine"
+          vagrant ssh "$machine" -- '/bin/sh -e' <<-EOF
+            cd /vagrant
+            BUILD_NATIVE='${{ matrix.native }}' .github/functions.sh init_env dependency mvnw --color=always install
+            if [ '${{ matrix.native && github.event.inputs.upload-native == 'true' }}' = true ]; then
+              GITHUB_ACTOR='$GITHUB_ACTOR' GITHUB_TOKEN='${{ github.token }}' .github/functions.sh git_config commit_native push
+            fi
+          EOF
+      - name: Before Cache
+        shell: bash
+        run: |
+          ./mvnw -B --color=always build-helper:remove-project-artifact || :
+          find ~/.m2/repository -type d -name '*-SNAPSHOT' \( -exec rm -rf '{}' \; -prune \)
