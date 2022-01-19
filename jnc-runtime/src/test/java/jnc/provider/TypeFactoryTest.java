@@ -20,7 +20,7 @@ public class TypeFactoryTest {
             InternalType value = DefaultForeign.INSTANCE.getTypeFactory().findByNativeType(nativeType);
             String name = nativeType.name();
             String address = String.format("%#0" + width + "x", value.address());
-            int type = value.type();
+            int type = value.id();
             int size = value.size();
             int alignment = value.alignment();
             char signed = value.isSigned() ? 's' : 'u';

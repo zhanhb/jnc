@@ -59,7 +59,7 @@ final class BuiltinType implements InternalType {
     }
 
     @Override
-    public int type() {
+    public int id() {
         return (int) info & 0xFFFF;
     }
 

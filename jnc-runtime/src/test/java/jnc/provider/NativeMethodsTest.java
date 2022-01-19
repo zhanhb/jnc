@@ -65,8 +65,8 @@ public class NativeMethodsTest {
         HashMap<String, Integer> map = new HashMap<>(50);
         NA.initAlias(map);
         log.info("map={}", map);
-        assertEquals(Integer.valueOf(TypeInfo.UINT8.type()), map.get("uint8_t"));
-        assertEquals(Integer.valueOf(TypeInfo.SINT32.type()), map.get("int32_t"));
+        assertEquals(Integer.valueOf(TypeInfo.UINT8.id()), map.get("uint8_t"));
+        assertEquals(Integer.valueOf(TypeInfo.SINT32.id()), map.get("int32_t"));
     }
 
     @Test

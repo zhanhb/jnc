@@ -4,10 +4,10 @@ import jnc.foreign.Type;
 
 interface InternalType extends Type, NativeObject {
 
+    int id();
+
     @Override
     int size();
-
-    int type();
 
     @Override
     int alignment();

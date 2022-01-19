@@ -34,8 +34,8 @@ final class Alias implements InternalType {
     }
 
     @Override
-    public int type() {
-        return delegate.type();
+    public int id() {
+        return delegate.id();
     }
 
     @Override
