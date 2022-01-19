@@ -38,6 +38,8 @@ jobs:
         include:
           - os: ubuntu-latest
             java-version: 11
+          - os: ubuntu-latest
+            java-version: 17
           - os: macos-latest
           - os: macos-latest
             native: 1
