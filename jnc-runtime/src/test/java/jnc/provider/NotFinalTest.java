@@ -34,6 +34,8 @@ import java.nio.file.Paths;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -117,36 +119,36 @@ public class NotFinalTest {
 
     public enum RequireType {
 
-        SHOULD_HAVE() {
-            @Override
-            void check0(NotFinal annotation, AnnotatedElement element) {
-                if (annotation == null) {
-                    throw newAssertionError("%1$s not final, and has no annotation @NotFinal", element, null);
-                }
-                log.warn("{} {}", nonFinalToString(annotation), element);
-            }
-        },
-        SHOULD_NOT_HAVE() {
-            @Override
-            void check0(NotFinal annotation, AnnotatedElement element) {
-                if (annotation != null) {
-                    throw newAssertionError("%2$s %1$s is required to not have annotation NotFinal", element, annotation);
-                }
-            }
-        }, LOG_DEBUG() {
-            @Override
-            void check0(NotFinal annotation, AnnotatedElement element) {
-                if (annotation == null) {
-                    log.debug("{}", element);
-                } else {
-                    log.debug("{} {}", nonFinalToString(annotation), element);
-                }
-            }
-        }, NO_ACTION() {
-            @Override
-            void check0(NotFinal annotation, AnnotatedElement element) {
-            }
-        };
+        SHOULD_HAVE((annotation, element) -> {
+            log.warn("{} {}", nonFinalToString(annotation), element);
+        }, element -> {
+            throw newAssertionError("%1$s not final, and has no annotation @NotFinal", element, null);
+        }),
+        SHOULD_NOT_HAVE((annotation, element) -> {
+            throw newAssertionError("%2$s %1$s is required to not have annotation NotFinal", element, annotation);
+        }),
+        LOG_DEBUG((annotation, element) -> {
+            log.debug("{} {}", nonFinalToString(annotation), element);
+        }, element -> log.debug("{}", element)),
+        NO_ACTION;
+
+        private final BiConsumer<NotFinal, AnnotatedElement> onPresent;
+        private final Consumer<AnnotatedElement> onMissing;
+
+        RequireType(BiConsumer<NotFinal, AnnotatedElement> onPresent, Consumer<AnnotatedElement> onMissing) {
+            this.onPresent = onPresent;
+            this.onMissing = onMissing;
+        }
+
+        RequireType(BiConsumer<NotFinal, AnnotatedElement> onPresent) {
+            this(onPresent, __ -> {
+            });
+        }
+
+        RequireType() {
+            this((a, e) -> {
+            });
+        }
 
         private static String nonFinalToString(NotFinal annotation) {
             return annotation.toString().replaceAll("^@" + NotFinal.class.getName().replace(".", "\\."), "@NotFinal");
@@ -168,7 +170,10 @@ public class NotFinalTest {
             check0(element.getAnnotation(NotFinal.class), element);
         }
 
-        abstract void check0(@Nullable NotFinal annotation, AnnotatedElement element);
+        void check0(@Nullable NotFinal annotation, AnnotatedElement element) {
+            if (annotation != null) onPresent.accept(annotation, element);
+            else onMissing.accept(element);
+        }
     }
 
 }
