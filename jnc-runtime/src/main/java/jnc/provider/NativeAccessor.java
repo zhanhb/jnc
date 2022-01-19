@@ -210,6 +210,8 @@ interface NativeAccessor {
     @SuppressWarnings("unused")
     void invokeStruct(long cif, long function, long base, @Nullable int[] offsets, long struct, Object obj, long methodId);
 
+    Class<?> defineClass(@Nullable String name, @Nullable ClassLoader loader, byte[] buf);
+
     default long getMethodId(Method method) {
         return 0;
     }

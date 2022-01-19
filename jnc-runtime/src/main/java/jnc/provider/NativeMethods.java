@@ -209,6 +209,9 @@ enum NativeMethods implements NativeAccessor {
     public final native void invokeStruct(long cif, long function, long base, @Nullable int[] offsets, long struct, Object obj, long methodId);
 
     @Override
+    public final native Class<?> defineClass(@Nullable String name, @Nullable ClassLoader loader, byte[] buf);
+
+    @Override
     public final native long getMethodId(Method method);
 
     /**
