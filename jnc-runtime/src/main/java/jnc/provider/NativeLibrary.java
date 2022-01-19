@@ -27,8 +27,8 @@ final class NativeLibrary implements Library {
     private static final NativeAccessor NA = NativeLoader.getAccessor();
     private static final Cleaner CLEANER = Cleaner.getInstance();
 
-    static NativeLibrary open(@Nullable String libName, @SuppressWarnings("SameParameterValue") int mode) {
-        Dlclose dlclose = new Dlclose(libName, mode);
+    static NativeLibrary open(Platform platform, @Nullable String libName, @SuppressWarnings("SameParameterValue") int mode) {
+        Dlclose dlclose = new Dlclose(platform, libName, mode);
         try {
             return new NativeLibrary(dlclose);
         } catch (Throwable t) {
@@ -68,23 +68,22 @@ final class NativeLibrary implements Library {
         private static final AtomicLongFieldUpdater<Dlclose> UPDATER
                 = AtomicLongFieldUpdater.newUpdater(Dlclose.class, "address");
 
-        private static long openImpl(@Nullable String libName, int mode) {
+        private static long openImpl(Platform platform, @Nullable String libName, int mode) {
             try {
                 return NA.dlopen(libName, mode);
             } catch (UnsatisfiedLinkError error) {
-                DefaultPlatform platform = DefaultPlatform.INSTANCE;
-                Platform.OS os = platform.getOS();
-                if (!os.isELF() || !"c".equals(libName) && !platform.getLibcName().equals(libName)) {
-                    throw error;
+                if (platform.getOS().isELF() &&
+                        ("c".equals(libName) || platform.getLibcName().equals(libName))) {
+                    return NA.dlopen(null, 0);
                 }
-                return NA.dlopen(null, 0);
+                throw error;
             }
         }
 
         private volatile long address;
 
-        Dlclose(@Nullable String libname, int mode) {
-            this.address = openImpl(libname, mode);
+        Dlclose(Platform platform, @Nullable String libname, int mode) {
+            this.address = openImpl(platform, libname, mode);
         }
 
         long getAddress() {

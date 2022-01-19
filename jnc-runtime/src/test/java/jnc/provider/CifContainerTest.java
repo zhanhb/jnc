@@ -23,7 +23,7 @@ public class CifContainerTest {
     @Test
     public void testAcos() {
         log.info("test acos");
-        Library libm = NativeLibrary.open(LIBM, 0);
+        Library libm = NativeLibrary.open(DefaultPlatform.INSTANCE, LIBM, 0);
 
         long function = libm.dlsym("acos");
         CifContainer container = CifContainer.create(CallingConvention.DEFAULT, TypeInfo.DOUBLE, TypeInfo.DOUBLE);
@@ -38,7 +38,7 @@ public class CifContainerTest {
     @Test
     public void testAcosf() {
         log.info("test acosf");
-        Library libm = NativeLibrary.open(LIBM, 0);
+        Library libm = NativeLibrary.open(DefaultPlatform.INSTANCE, LIBM, 0);
 
         long function = libm.dlsym("acosf");
         CifContainer container = CifContainer.create(CallingConvention.DEFAULT, TypeInfo.FLOAT, TypeInfo.FLOAT);
@@ -51,7 +51,7 @@ public class CifContainerTest {
     @Test
     public void testMemcpy() {
         log.info("test memcpy");
-        Library libc = NativeLibrary.open(LIBC, 0);
+        Library libc = NativeLibrary.open(DefaultPlatform.INSTANCE, LIBC, 0);
         long function = libc.dlsym("memcpy");
         Alias sizeT = DefaultForeign.INSTANCE.getTypeFactory().findByAlias(TypeAlias.size_t);
         Alias uIntPtr = DefaultForeign.INSTANCE.getTypeFactory().findByAlias(TypeAlias.uintptr_t);
@@ -76,12 +76,13 @@ public class CifContainerTest {
         Library libc;
         long function;
         InternalType returnType;
-        if (Platform.getNativePlatform().getOS().isWindows()) {
-            libc = NativeLibrary.open("kernel32", 0);
+        Platform platform = Platform.getNativePlatform();
+        if (platform.getOS().isWindows()) {
+            libc = NativeLibrary.open(platform, "kernel32", 0);
             function = libc.dlsym("GetCurrentProcessId");
             returnType = DefaultForeign.INSTANCE.getTypeFactory().findByAlias(TypeAlias.uint32_t);
         } else {
-            libc = NativeLibrary.open(LIBC, 0);
+            libc = NativeLibrary.open(platform, LIBC, 0);
             function = libc.dlsym("getpid");
             returnType = DefaultForeign.INSTANCE.getTypeFactory().findByAlias(TypeAlias.pid_t);
         }

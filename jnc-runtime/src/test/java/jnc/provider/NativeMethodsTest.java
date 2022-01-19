@@ -29,11 +29,11 @@ public class NativeMethodsTest {
     public void testNotFound() {
         log.info("test not found");
         String path = System.mapLibraryName("not_exists_lib");
-        assertThatThrownBy(() -> NativeLibrary.open(path, 0))
+        assertThatThrownBy(() -> NativeLibrary.open(DefaultPlatform.INSTANCE, path, 0))
                 .isInstanceOf(UnsatisfiedLinkError.class)
                 .matches(ex -> ex.getMessage().length() > 0, "message won't be empty");
 
-        Library libm = NativeLibrary.open(LIBM, 0);
+        Library libm = NativeLibrary.open(DefaultPlatform.INSTANCE, LIBM, 0);
         assertThatThrownBy(() -> libm.dlsym("not_exists_function"))
                 .isInstanceOf(UnsatisfiedLinkError.class)
                 .matches(ex -> ex.getMessage().length() > 0, "message won't be empty");
@@ -44,7 +44,7 @@ public class NativeMethodsTest {
         log.info("test null pointer");
         assertThatThrownBy(() -> NA.dlsym(0, "not_exists_function"))
                 .isInstanceOf(NullPointerException.class);
-        Library libm = NativeLibrary.open(LIBM, 0);
+        Library libm = NativeLibrary.open(DefaultPlatform.INSTANCE, LIBM, 0);
         assertThatThrownBy(() -> libm.dlsym(null))
                 .isInstanceOf(NullPointerException.class);
         assertThatThrownBy(() -> NA.dlclose(0))
@@ -53,7 +53,7 @@ public class NativeMethodsTest {
 
     @RepeatedTest(10)
     public void testDlopen() {
-        NativeLibrary.open(null, 0);
+        NativeLibrary.open(DefaultPlatform.INSTANCE, null, 0);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class NativeMethodsTest {
 
     @Test
     public void testFfi_call() {
-        Library lib = NativeLibrary.open(LIBC, 0);
+        Library lib = NativeLibrary.open(DefaultPlatform.INSTANCE, LIBC, 0);
         long toupper = lib.dlsym("toupper");
         CifContainer container = CifContainer.create(CallingConvention.DEFAULT, TypeInfo.SINT32, TypeInfo.SINT32);
         CallContext context = container.newCallContext();

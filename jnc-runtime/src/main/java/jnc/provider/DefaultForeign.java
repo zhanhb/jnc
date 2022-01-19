@@ -50,7 +50,7 @@ enum DefaultForeign implements Foreign {
         Objects.requireNonNull(interfaceClass, "interfaceClass");
         Objects.requireNonNull(loadOptions, "loadOptions");
         try {
-            return InvocationLibrary.create(interfaceClass, NativeLibrary.open(libname, 0),
+            return InvocationLibrary.create(interfaceClass, NativeLibrary.open(DefaultPlatform.INSTANCE, libname, 0),
                     loadOptions, typeFactory, typeHandlerFactory);
         } catch (Throwable t) {
             if (!loadOptions.isFailImmediately()) {
