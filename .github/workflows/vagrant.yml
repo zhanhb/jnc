@@ -32,8 +32,10 @@ jobs:
             ${{ env.cache-name }}-${{ runner.os }}-
       - name: Run with vagrant
         run: |
+          vagrant plugin install vagrant-rsync-back
           machine='${{ matrix.image }}'
-          vagrant up "$machine"
+          SKIP_SYNC_FOLDER=1 vagrant up "$machine"
+          vagrant reload "$machine"
           vagrant ssh "$machine" -- '/bin/sh -e' <<-EOF
             cd /vagrant
             BUILD_NATIVE='${{ matrix.native }}' .github/functions.sh init_env dependency mvnw --color=always install
@@ -41,6 +43,8 @@ jobs:
               GITHUB_ACTOR='$GITHUB_ACTOR' GITHUB_TOKEN='${{ github.token }}' .github/functions.sh git_config commit_native push
             fi
           EOF
+          vagrant rsync-back "$machine"
+          vagrant halt "$machine"
       - name: Before Cache
         shell: bash
         run: |
