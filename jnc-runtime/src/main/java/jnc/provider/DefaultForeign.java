@@ -1,5 +1,6 @@
 package jnc.provider;
 
+import java.lang.reflect.InvocationHandler;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,16 +24,20 @@ enum DefaultForeign implements Foreign {
     DefaultForeign() {
         TypeFactory tf;
         TypeHandlerFactory thf;
-        try {
-            tf = new TypeRegistry();
-            thf = new TypeHandlerRegistry(tf);
-        } catch (Throwable ex) {
-            ProxyBuilder builder = ProxyBuilder.builder().orThrow(ex);
-            tf = builder.newInstance(TypeFactory.class);
-            thf = builder.newInstance(TypeHandlerFactory.class);
+        label:
+        {
+            try {
+                tf = new TypeRegistry();
+                thf = new TypeHandlerRegistry(tf);
+            } catch (Throwable ex) {
+                InvocationHandler ih = ProxyBuilder.builder().orThrow(ex).toInvocationHandler();
+                typeFactory = ProxyBuilder.newInstance(ih, TypeFactory.class);
+                typeHandlerFactory = ProxyBuilder.newInstance(ih, TypeHandlerFactory.class);
+                break label;
+            }
+            typeFactory = tf;
+            typeHandlerFactory = thf;
         }
-        typeFactory = tf;
-        typeHandlerFactory = thf;
     }
 
     TypeFactory getTypeFactory() {
@@ -85,7 +90,7 @@ enum DefaultForeign implements Foreign {
 
     @Nonnull
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public <T> TypeHandler<T> getTypeHandler(Class<T> type) {
         if (type.isEnum()) {
             return EnumTypeHandler.getInstance((Class) type);

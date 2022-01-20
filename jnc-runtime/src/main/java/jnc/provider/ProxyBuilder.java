@@ -100,6 +100,11 @@ final class ProxyBuilder {
         return (proxy, method, args) -> map.computeIfAbsent(MethodKey.of(method), cia).invoke(proxy, args);
     }
 
+    public static <T> T newInstance(InvocationHandler ih, Class<T> interfaceClass) {
+        return interfaceClass.cast(Proxy.newProxyInstance(interfaceClass.getClassLoader(),
+                new Class<?>[]{interfaceClass}, ih));
+    }
+
     private final Map<MethodKey, MethodHandler> map = new HashMap<>(4);
     private boolean useDefaultMethod;
     private Function<Method, MethodHandler> otherwise;
@@ -188,8 +193,7 @@ final class ProxyBuilder {
     }
 
     public <T> T newInstance(Class<T> interfaceClass) {
-        return interfaceClass.cast(Proxy.newProxyInstance(interfaceClass.getClassLoader(),
-                new Class<?>[]{interfaceClass}, toInvocationHandler()));
+        return newInstance(toInvocationHandler(), interfaceClass);
     }
 
     private static final class MethodKey {
