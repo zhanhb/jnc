@@ -11,24 +11,12 @@ public class AllocatedMemoryTest {
     public void testIllegalArgument() {
         assertThatThrownBy(() -> AllocatedMemory.allocate(-1))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> AllocatedMemory.allocate(-1, 1))
-                .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> AllocatedMemory.allocate(1, -1))
-                .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> AllocatedMemory.allocate(-1, -1))
-                .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> AllocatedMemory.allocate(0, -1))
-                .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> AllocatedMemory.allocate(-1, 0))
-                .isInstanceOf(IllegalArgumentException.class);
-        AllocatedMemory.allocate(0, 0);
+        AllocatedMemory.allocate(0);
     }
 
     @Test
     public void testOutOfMemory() {
         assertThatThrownBy(() -> AllocatedMemory.allocate(Long.MAX_VALUE))
-                .isInstanceOf(OutOfMemoryError.class);
-        assertThatThrownBy(() -> AllocatedMemory.allocate(Integer.MAX_VALUE, Integer.MAX_VALUE))
                 .isInstanceOf(OutOfMemoryError.class);
     }
 

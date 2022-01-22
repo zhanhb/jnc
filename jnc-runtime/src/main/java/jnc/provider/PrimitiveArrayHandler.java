@@ -69,7 +69,7 @@ final class PrimitiveArrayHandler<T> implements ParameterHandlerInfo, ParameterP
         } else {
             int offset = 0;
             int off = 0;
-            Pointer memory = AllocatedMemory.allocate(len, unit);
+            Pointer memory = AllocatedMemory.allocate((long) len * unit);
             toNative.handle(memory, offset, array, off, len);
             context.onFinish(() -> fromNative.handle(memory, offset, array, off, len)).putLong(index, memory.address());
         }

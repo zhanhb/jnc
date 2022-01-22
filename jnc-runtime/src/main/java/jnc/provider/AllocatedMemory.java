@@ -6,7 +6,10 @@ final class AllocatedMemory extends SizedDirectMemory {
 
     private static final Cleaner CLEANER = Cleaner.getInstance();
 
-    private static AllocatedMemory allocateImpl(long size) {
+    static AllocatedMemory allocate(long size) throws OutOfMemoryError {
+        if (size < 0) {
+            throw new IllegalArgumentException();
+        }
         Free free = new Free(size);
         try {
             return new AllocatedMemory(size, free);
@@ -15,20 +18,6 @@ final class AllocatedMemory extends SizedDirectMemory {
             free.run();
             throw t;
         }
-    }
-
-    static AllocatedMemory allocate(long size) throws OutOfMemoryError {
-        if (size < 0) {
-            throw new IllegalArgumentException();
-        }
-        return allocateImpl(size);
-    }
-
-    static AllocatedMemory allocate(int count, int size) throws OutOfMemoryError {
-        if ((count | size) < 0) {
-            throw new IllegalArgumentException();
-        }
-        return allocateImpl((long) count * size);
     }
 
     @SuppressWarnings("LeakingThisInConstructor")
