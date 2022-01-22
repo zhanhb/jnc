@@ -148,29 +148,29 @@ interface NativeAccessor {
 
     void putBytes(long address, byte[] bytes, int off, int len);
 
-    void getShortArray(long address, short[] bytes, int off, int len);
+    void getShortArray(long address, short[] shorts, int off, int len);
 
-    void putShortArray(long address, short[] bytes, int off, int len);
+    void putShortArray(long address, short[] shorts, int off, int len);
 
-    void getCharArray(long address, char[] bytes, int off, int len);
+    void getCharArray(long address, char[] chars, int off, int len);
 
-    void putCharArray(long address, char[] bytes, int off, int len);
+    void putCharArray(long address, char[] chars, int off, int len);
 
-    void getIntArray(long address, int[] bytes, int off, int len);
+    void getIntArray(long address, int[] ints, int off, int len);
 
-    void putIntArray(long address, int[] bytes, int off, int len);
+    void putIntArray(long address, int[] ints, int off, int len);
 
-    void getLongArray(long address, long[] bytes, int off, int len);
+    void getLongArray(long address, long[] longs, int off, int len);
 
-    void putLongArray(long address, long[] bytes, int off, int len);
+    void putLongArray(long address, long[] longs, int off, int len);
 
-    void getFloatArray(long address, float[] bytes, int off, int len);
+    void getFloatArray(long address, float[] floats, int off, int len);
 
-    void putFloatArray(long address, float[] bytes, int off, int len);
+    void putFloatArray(long address, float[] floats, int off, int len);
 
-    void getDoubleArray(long address, double[] bytes, int off, int len);
+    void getDoubleArray(long address, double[] doubles, int off, int len);
 
-    void putDoubleArray(long address, double[] bytes, int off, int len);
+    void putDoubleArray(long address, double[] doubles, int off, int len);
 
     void initAlias(Map<String, Integer> map);
 
