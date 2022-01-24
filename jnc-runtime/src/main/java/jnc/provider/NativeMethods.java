@@ -2,33 +2,21 @@ package jnc.provider;
 
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
+@SuppressWarnings("FinalMethod")
 enum NativeMethods implements NativeAccessor {
 
     INSTANCE;
-
-    private static final AtomicReference<Runnable> onFinalize;
 
     static {
         // Initialize Cleaner when our instance and static field onFinalize is ready.
         // Make sure class NativeLoader is initialized.
         // Cleaner => NativeLoader => NativeMethods
-        onFinalize = new AtomicReference<>();
         //noinspection ResultOfMethodCallIgnored
         NativeLoader.getAccessor();
-    }
-
-    // access by native code
-    @SuppressWarnings("unused")
-    private static void onUnload() {
-        Runnable runnable = onFinalize.getAndSet(null);
-        if (runnable != null) {
-            runnable.run();
-        }
     }
 
     /**
@@ -213,22 +201,5 @@ enum NativeMethods implements NativeAccessor {
 
     @Override
     public final native long getMethodId(Method method);
-
-    /**
-     * Maybe the classloader instance is finalized before the lib, meanwhile the
-     * native lib is also finalized. There's no guarantee who is finalized
-     * first. Let it call our method onUnload to make sure these are finalized
-     * before native library unloaded.
-     *
-     * @param action when deployed, should only be invoked by Cleaner, nullable
-     * for test
-     * @see Cleaner.Ref#cleanAll()
-     * @see NativeMethods#onFinalize(java.lang.Runnable)
-     * @return true if registered successfully
-     */
-    @Override
-    public boolean onFinalize(@Nullable Runnable action) {
-        return onFinalize.compareAndSet(null, action);
-    }
 
 }

@@ -93,7 +93,7 @@ public class NotFinalTest {
         for (Class<?> klass : classes) {
             RequireType requireType;
             int modifiers = klass.getModifiers();
-            if (klass.isEnum() || klass.isInterface()) {
+            if (klass.isEnum() || klass.isInterface() || klass.isAnonymousClass()) {
                 requireType = RequireType.LOG_DEBUG;
             } else {
                 if (Modifier.isAbstract(modifiers)) {

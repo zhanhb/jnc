@@ -25,11 +25,24 @@ import java.util.Objects;
 final class Cleaner {
 
     private static final Cleaner INSTANCE;
+    @SuppressWarnings("unused")
+    private static final Object FINALIZER_HOLDER;
 
     static {
         Ref list = new Ref();
         INSTANCE = new Cleaner(list);
-        NativeLoader.getAccessor().onFinalize(list::cleanAll);
+        Runnable onFinalize = list::cleanAll;
+        FINALIZER_HOLDER = new Object() {
+            @Override
+            @SuppressWarnings({"deprecation", "FinalizeDeclaration"})
+            protected void finalize() throws Throwable {
+                try {
+                    onFinalize.run();
+                } finally {
+                    super.finalize();
+                }
+            }
+        };
     }
 
     static Cleaner getInstance() {

@@ -27,7 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -48,7 +47,6 @@ public class NativeLoaderTest {
         UnsatisfiedLinkError cause = new UnsatisfiedLinkError(message);
         NativeAccessor nativeAccessor = instance.createProxy(cause);
         nativeAccessor.getCifInfo();
-        assertFalse(nativeAccessor.onFinalize(null));
         //noinspection ConstantConditions
         nativeAccessor.getMethodId(null);
         assertThatThrownBy(() -> nativeAccessor.allocateMemory(0))
@@ -60,7 +58,6 @@ public class NativeLoaderTest {
     public void testCreateProxy2() {
         NativeAccessor nativeAccessor = instance.createProxy(new JniLoadingException(message));
         nativeAccessor.getCifInfo();
-        assertFalse(nativeAccessor.onFinalize(null));
         //noinspection ConstantConditions
         nativeAccessor.getMethodId(null);
         assertThatThrownBy(() -> nativeAccessor.allocateMemory(0))

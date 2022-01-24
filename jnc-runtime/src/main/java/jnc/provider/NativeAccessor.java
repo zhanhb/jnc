@@ -216,11 +216,4 @@ interface NativeAccessor {
         return 0;
     }
 
-    /*
-     * action nullable for test. Will only be accessed by class Cleaner when published.
-     */
-    default boolean onFinalize(@Nullable Runnable action) {
-        return false;
-    }
-
 }
