@@ -16,6 +16,7 @@ final class CharsetUtil {
     static {
         Charset compoundText = null;
         try {
+            //noinspection InjectedReferences
             compoundText = Charset.forName("COMPOUND_TEXT");
         } catch (UnsupportedCharsetException ex) {
             // Charset COMPOUND_TEXT is not support on this jdk
@@ -37,7 +38,7 @@ final class CharsetUtil {
     static int getTerminatorLength(Charset charset) {
         Objects.requireNonNull(charset);
         return TERMINATOR_LENGTH_CACHE.computeIfAbsent(charset, ch -> {
-            for (int maybe : new int[]{1, 2, 4}) {
+            for (int maybe : new int[]{4, 2, 1}) {
                 if (isTerminatorLengthEquals(ch, maybe)) {
                     return maybe;
                 }
