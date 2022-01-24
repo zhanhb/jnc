@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -60,11 +62,11 @@ public class WindowsTest {
         FILETIME b = new FILETIME();
         FILETIME c = new FILETIME();
         FILETIME d = new FILETIME();
-        long now = System.currentTimeMillis();
-        long least = now - 24L * 60 * 60 * 1000;
+        Instant now = Instant.now();
+        Instant least = now.minus(1, ChronoUnit.DAYS);
         for (int i = 0; i < 20; ++i) {
             assertTrue(Kernel32.INSTANCE.GetProcessTimes(current, a, b, c, d));
-            assertTrue(least < a.toMillis() && a.toMillis() <= now);
+            assertTrue(least.isBefore(a.toInstant()) && a.toInstant().isBefore(now));
         }
     }
 
@@ -94,10 +96,9 @@ public class WindowsTest {
 
     private static class FILETIME extends Struct {
 
-        private static long toMillis(final int high, final int low) {
-            final long filetime = (long) high << 32 | low & 0xffffffffL;
-            final long ms_since_16010101 = filetime / (1000 * 10);
-            return ms_since_16010101 - 11644473600000L;
+        private static Instant toInstant(long filetime) {
+            long t = filetime - 116444736000000000L;
+            return Instant.ofEpochSecond(t / 10000000, t % 10000000 * 100);
         }
 
         private final DWORD dwLowDateTime = new DWORD();
@@ -115,8 +116,8 @@ public class WindowsTest {
             return (long) getHighDateTime() << 32 | (getLowDateTime() & 0xFFFFFFFFL);
         }
 
-        public long toMillis() {
-            return toMillis(getHighDateTime(), getLowDateTime());
+        public Instant toInstant() {
+            return toInstant(longValue());
         }
 
         @Override
