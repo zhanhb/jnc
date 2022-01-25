@@ -45,7 +45,7 @@ final class FixedMethodInvocation implements MethodInvocation {
     }
 
     @Override
-    public Object invoke(Object proxy, Object[] args) {
+    public Object invoke(Object proxy, Object[] args) throws Throwable {
         @SuppressWarnings(value = "unchecked")
         ParameterPutter<Object>[] h = (ParameterPutter<Object>[]) putters;
         int length = h.length;

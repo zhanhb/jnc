@@ -78,7 +78,7 @@ public class NativeMethodsTest {
     }
 
     @Test
-    public void testFfi_call() {
+    public void testFfi_call() throws Throwable {
         Library lib = NativeLibrary.open(DefaultPlatform.INSTANCE, LIBC, 0);
         long toupper = lib.dlsym("toupper");
         CifContainer container = CifContainer.create(CallingConvention.DEFAULT, TypeInfo.SINT32, TypeInfo.SINT32);

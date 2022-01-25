@@ -21,7 +21,7 @@ public class CifContainerTest {
     private static final PrimitiveConverter PC = new PrimitiveConverter();
 
     @Test
-    public void testAcos() {
+    public void testAcos() throws Throwable {
         log.info("test acos");
         Library libm = NativeLibrary.open(DefaultPlatform.INSTANCE, LIBM, 0);
 
@@ -36,7 +36,7 @@ public class CifContainerTest {
     // TODO symbol not found on windows x86
     @Disabled
     @Test
-    public void testAcosf() {
+    public void testAcosf() throws Throwable {
         log.info("test acosf");
         Library libm = NativeLibrary.open(DefaultPlatform.INSTANCE, LIBM, 0);
 
@@ -49,7 +49,7 @@ public class CifContainerTest {
     }
 
     @Test
-    public void testMemcpy() {
+    public void testMemcpy() throws Throwable {
         log.info("test memcpy");
         Library libc = NativeLibrary.open(DefaultPlatform.INSTANCE, LIBC, 0);
         long function = libc.dlsym("memcpy");
@@ -71,7 +71,7 @@ public class CifContainerTest {
     }
 
     @Test
-    public void testGetpid() {
+    public void testGetpid() throws Throwable {
         log.info("test get pid");
         Library libc;
         long function;

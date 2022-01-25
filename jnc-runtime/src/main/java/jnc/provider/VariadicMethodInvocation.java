@@ -132,7 +132,7 @@ final class VariadicMethodInvocation implements MethodInvocation {
 
     @Override
     @SuppressWarnings("NestedAssignment")
-    public Object invoke(Object proxy, Object[] args) {
+    public Object invoke(Object proxy, Object[] args) throws Throwable {
         // length > 2 is assumed
         final int fixedArgs = args.length - 1;
         final Object variadics = args[fixedArgs];

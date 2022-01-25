@@ -64,7 +64,7 @@ public class PrimitiveConverterTest {
      */
     @MethodSource("data")
     @ParameterizedTest(name = "{index} {0} {1}")
-    public void testGetConverters(Class<?> klass, NativeType type) {
+    public void testGetConverters(Class<?> klass, NativeType type) throws Throwable {
         RawConverter<?> handler = pc.getConverters(klass).apply(type);
         assertThat(handler)
                 .describedAs("class=%s,native=%s", klass, type)

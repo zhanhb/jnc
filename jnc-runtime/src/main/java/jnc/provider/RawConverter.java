@@ -20,6 +20,6 @@ package jnc.provider;
  */
 interface RawConverter<T> {
 
-    T convertRaw(long result);
+    T convertRaw(long result) throws Throwable;
 
 }

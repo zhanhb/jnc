@@ -86,7 +86,7 @@ final class CifCallContext implements CallContext {
     }
 
     @Override
-    public <T> T invoke(RawConverter<T> rawConverter, long function) {
+    public <T> T invoke(RawConverter<T> rawConverter, long function) throws Throwable {
         long result = NA.invoke(cif.address(), function, parameter.address(),
                 offsets, DefaultLastErrorHandler.INSTANCE, DefaultLastErrorHandler.METHOD_ID);
         finish();
