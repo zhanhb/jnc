@@ -46,6 +46,9 @@ static void checkReturnValue(JNIEnv *env, ffi_status status) {
         case FFI_BAD_ABI:
             throwByName(env, IllegalArgument, "Bad abi");
             break;
+        case FFI_BAD_ARGTYPE:
+            throwByName(env, IllegalArgument, "Bad argument type");
+            break;
         default:
             throwByName(env, UnknownError, nullptr);
             break;
