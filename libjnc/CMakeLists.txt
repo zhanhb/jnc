@@ -114,9 +114,10 @@ ExternalProject_Add(libffi
         INSTALL_COMMAND true
         WORKING_DIRECTORY <BINARY_DIR>)
 
-ExternalProject_Add_Step(libffi autogen
+ExternalProject_Add_Step(libffi autoconf
         COMMAND env NOCONFIGURE=1 ./autogen.sh
-        DEPENDEES gitinfo.txt patch DEPENDERS configure
+        DEPENDEES patch
+        DEPENDERS configure
         WORKING_DIRECTORY <SOURCE_DIR>)
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
@@ -136,7 +137,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
                 # use relative path, let autoconf determine style of the path
                 ../libffi/configure ${LIBFFI_BUILD_CONFIG}
                 -host ${arch}-apple-darwin "--prefix=<INSTALL_DIR>"
-                DEPENDEES autogen
+                DEPENDEES autoconf
                 DEPENDERS configure)
         ExternalProject_Add_Step(libffi build-${arch}
                 COMMAND $(MAKE)
@@ -184,7 +185,7 @@ else ()
             # use relative path, let autoconf determine style of the path
             ../libffi/configure ${LIBFFI_BUILD_CONFIG}
             ${LIBFFI_HOST_CONFIG} "--prefix=<INSTALL_DIR>"
-            DEPENDEES autogen
+            DEPENDEES autoconf
             DEPENDERS configure
             WORKING_DIRECTORY <BINARY_DIR>)
 
