@@ -73,3 +73,14 @@ JNIEXPORT jclass JNICALL Java_jnc_provider_NativeMethods_defineClass(
         return env->DefineClass(nullptr, loader, buf, len);
     }
 }
+
+/*
+ * Class:     jnc_provider_NativeMethods
+ * Method:    getDirectBufferAddress
+ * Signature: (Ljava/nio/ByteBuffer;)J
+ */
+JNIEXPORT jlong JNICALL Java_jnc_provider_NativeMethods_getDirectBufferAddress(
+        JNIEnv *env, jobject, jobject buffer) {
+    checkNullPointer(env, buffer, 0);
+    return p2j(env->GetDirectBufferAddress(buffer));
+}

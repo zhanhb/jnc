@@ -1,6 +1,7 @@
 package jnc.provider;
 
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
 import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -201,5 +202,12 @@ enum NativeMethods implements NativeAccessor {
 
     @Override
     public final native long getMethodId(Method method);
+
+    @Override
+    public final long getAddress(ByteBuffer buffer) {
+        return getDirectBufferAddress(buffer);
+    }
+
+    private native long getDirectBufferAddress(ByteBuffer buffer);
 
 }

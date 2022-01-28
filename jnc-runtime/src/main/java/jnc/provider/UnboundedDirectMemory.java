@@ -259,7 +259,7 @@ final class UnboundedDirectMemory extends Memory implements NativeObject, Pointe
             String msg = "begin " + beginIndex + ", end " + endIndex;
             throw new IndexOutOfBoundsException(msg);
         }
-        return new Slice(this, beginIndex, endIndex - beginIndex);
+        return new SizedDirectMemory.Slice(this, beginIndex, endIndex - beginIndex);
     }
 
     @Nullable

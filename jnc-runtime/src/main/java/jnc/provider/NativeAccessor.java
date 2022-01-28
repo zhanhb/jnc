@@ -17,6 +17,7 @@ package jnc.provider;
 
 import java.lang.annotation.Native;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
 import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -215,5 +216,7 @@ interface NativeAccessor {
     default long getMethodId(Method method) {
         return 0;
     }
+
+    long getAddress(ByteBuffer buffer);
 
 }
