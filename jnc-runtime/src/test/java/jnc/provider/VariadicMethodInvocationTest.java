@@ -98,8 +98,8 @@ public class VariadicMethodInvocationTest {
             // 0x0 on Mac OS X
             // (nil) on Linux
             // 00000000 or 0000000000000000 on Windows(depends on the architecture)
-            // someone say on his system got '(null)' without quote
-            // https://stackoverflow.com/questions/10461360/what-is-the-behavior-of-the-conversion-specifier-p-with-null-pointer
+            // (null)
+            // https://stackoverflow.com/a/10461374
             String result = new String(bytes, 0, n);
             assertThat(result).matches("0x0|\\((?:nil|null)\\)|(?:0{8})+");
         }
