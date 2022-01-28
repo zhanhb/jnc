@@ -49,4 +49,52 @@ final class StringCoding {
         return new String(bytes, charset);
     }
 
+    static int getUTFLength(String string) {
+        int len = string.length(), pos;
+        label:
+        {
+            for (int i = 0; i < len; ++i) {
+                char ch = string.charAt(i);
+                if (((127 - ch) | (ch - 1)) < 0) {
+                    pos = i;
+                    break label;
+                }
+            }
+            return len;
+        }
+        int ans = len;
+        for (; pos < len; ++pos) {
+            char ch = string.charAt(pos);
+            if (((127 - ch) | (ch - 1)) < 0) {
+                if (ch < 2048) {
+                    ++ans;
+                } else {
+                    ans += 2;
+                }
+            }
+        }
+        return ans;
+    }
+
+    @SuppressWarnings("ValueOfIncrementOrDecrementUsed")
+    static byte[] toUTFBytes(String string, boolean terminated) {
+        byte[] bytes = new byte[getUTFLength(string) + (terminated ? 1 : 0)];
+        int offset = 0;
+        for (int i = 0, len = string.length(); i < len; ++i) {
+            char ch = string.charAt(i);
+            if (ch < 128 && ch != 0) {
+                bytes[offset++] = (byte) ch;
+            } else {
+                if (ch < 2048) {
+                    bytes[offset++] = (byte) (ch >> 6 | 192);
+                } else {
+                    bytes[offset++] = (byte) (ch >> 12 | 224);
+                    bytes[offset++] = (byte) (ch >> 6 & 63 | 128);
+                }
+                bytes[offset++] = (byte) (ch & 63 | 128);
+            }
+        }
+        return bytes;
+    }
+
 }

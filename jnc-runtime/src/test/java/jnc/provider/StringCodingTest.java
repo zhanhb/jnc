@@ -18,6 +18,8 @@ package jnc.provider;
 import jnc.foreign.Pointer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -33,6 +37,7 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author zhanhb
@@ -48,6 +53,32 @@ public class StringCodingTest {
             .values().stream()
             .filter(StringCodingTest::isAsciiCompatible)
             .collect(toList());
+
+    public static List<String> data() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 0x110000; ++i) {
+            sb.append(Character.toChars(i));
+        }
+        String full = sb.toString();
+        List<String> list = new ArrayList<>(Arrays.asList(
+                ASCII.substring(1),
+                ASCII,
+                full.substring(1),
+                full,
+                ""
+        ));
+        for (int codePoint : new int[]{
+                0, 1,
+                0x7F, 0x80,
+                0x7FF, 0x800,
+                0xDBFF, 0xDC00,
+                0xDFFF, 0xE000,
+                0xFEFF,
+                0xFFFF, 0x10000}) {
+            list.add(new String(Character.toChars(codePoint)));
+        }
+        return list;
+    }
 
     // only make sure the charset can convert all ascii bytes to String, not sure reverse convert
     private static boolean isAsciiCompatible(Charset charset) {
@@ -102,6 +133,28 @@ public class StringCodingTest {
                         .isEqualTo(str.substring(33, 40));
             }
         }
+    }
+
+    @MethodSource("data")
+    @ParameterizedTest
+    public void testGetStringUTF(String string) {
+        NativeAccessor accessor = NativeLoader.getAccessor();
+        int expect = accessor.getStringUTFLength(string);
+        int utfLength = StringCoding.getUTFLength(string);
+        assertEquals(expect, utfLength);
+
+        byte[] bytes = new byte[utfLength + 1];
+        long memory = accessor.allocateMemory(utfLength + 1);
+        try {
+            accessor.putStringUTF(memory, string);
+            accessor.getBytes(memory, bytes, 0, bytes.length);
+        } finally {
+            accessor.freeMemory(memory);
+        }
+        assertArrayEquals(bytes, StringCoding.toUTFBytes(string, true));
+        assertArrayEquals(
+                Arrays.copyOf(bytes, bytes.length - 1),
+                StringCoding.toUTFBytes(string, false));
     }
 
 }
