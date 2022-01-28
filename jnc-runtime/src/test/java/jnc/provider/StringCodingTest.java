@@ -128,7 +128,7 @@ public class StringCodingTest {
                 memory.putString(0, str, charset);
                 memory.getBytes(0, bytes, 0, bytes.length);
                 assertArrayEquals(expect, bytes, charset.name());
-                assertThat(memory.getString(0, charset)).isEqualTo(str);
+                assertEquals(str, memory.getString(0, charset), charset.name());
                 assertThat(memory.slice(32, 40).getString(1, charset))
                         .isEqualTo(str.substring(33, 40));
             }
