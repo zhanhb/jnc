@@ -48,7 +48,6 @@ public class StringCodingTest {
 
     private static final String ASCII = IntStream.rangeClosed(0, 127).mapToObj(x -> (char) x).map(String::valueOf)
             .collect(joining());
-    private static final byte[] ASCII_BYTES = ASCII.getBytes(StandardCharsets.UTF_8);
     private static final List<Charset> asciiCompatibleCharsets = Charset.availableCharsets()
             .values().stream()
             .filter(StringCodingTest::isAsciiCompatible)
@@ -84,8 +83,7 @@ public class StringCodingTest {
     private static boolean isAsciiCompatible(Charset charset) {
         String s;
         try {
-            // TODO leak the bytes, shall we trust the charset won't modify the bytes content?
-            s = charset.newDecoder().decode(ByteBuffer.wrap(ASCII_BYTES)).toString();
+            s = charset.newDecoder().decode(ByteBuffer.wrap(ASCII.getBytes(StandardCharsets.UTF_8))).toString();
         } catch (CharacterCodingException e) {
             return false;
         }
@@ -120,7 +118,7 @@ public class StringCodingTest {
     public void testAscii() {
         Pointer memory = AllocatedMemory.allocate(128);
         String str = ASCII.substring(1);
-        byte[] expect = str.getBytes();
+        byte[] expect = str.getBytes(StandardCharsets.UTF_8);
 
         byte[] bytes = new byte[127];
         for (Charset charset : asciiCompatibleCharsets) {
