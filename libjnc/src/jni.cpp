@@ -76,6 +76,17 @@ JNIEXPORT jclass JNICALL Java_jnc_provider_NativeMethods_defineClass(
 
 /*
  * Class:     jnc_provider_NativeMethods
+ * Method:    fromReflectedMethod
+ * Signature: (Ljava/lang/reflect/Method;)J
+ */
+JNIEXPORT jlong JNICALL Java_jnc_provider_NativeMethods_fromReflectedMethod(
+        JNIEnv *env, jobject, jobject method) {
+    checkNullPointer(env, method, 0);
+    return p2j(env->FromReflectedMethod(method));
+}
+
+/*
+ * Class:     jnc_provider_NativeMethods
  * Method:    getDirectBufferAddress
  * Signature: (Ljava/nio/ByteBuffer;)J
  */

@@ -91,17 +91,6 @@ EXTERNC JNIEXPORT void JNICALL Java_jnc_provider_NativeMethods_prepareInvokeVari
             (unsigned) nfixedargs, (unsigned) ntotalargs, prtype, patype));
 }
 
-/*
- * Class:     jnc_provider_NativeMethods
- * Method:    getMethodId
- * Signature: (Ljava/lang/reflect/Method;)J
- */
-EXTERNC JNIEXPORT jlong JNICALL Java_jnc_provider_NativeMethods_getMethodId
-(JNIEnv *env, jobject UNUSED(self), jobject jmethod) {
-    checkNullPointer(env, jmethod, 0);
-    return p2j(CALLJNI(env, FromReflectedMethod, jmethod));
-}
-
 template <class Dest, class Source>
 inline Dest bit_cast(const Source& source) {
     static_assert(sizeof (Dest) == sizeof (Source),

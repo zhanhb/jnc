@@ -201,7 +201,11 @@ enum NativeMethods implements NativeAccessor {
     public final native Class<?> defineClass(@Nullable String name, @Nullable ClassLoader loader, byte[] buf);
 
     @Override
-    public final native long getMethodId(Method method);
+    public final long getMethodId(Method method) {
+        return fromReflectedMethod(method);
+    }
+
+    private native long fromReflectedMethod(Method method);
 
     @Override
     public final long getAddress(ByteBuffer buffer) {
