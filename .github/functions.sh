@@ -108,10 +108,14 @@ init_env() {
   fi
 
   native=false
+  upload=false
   packages=()
 
   if [ -n "$BUILD_NATIVE" ]; then
     add_native
+    if [ "$UPLOAD_ARTIFACT" = true ]; then
+      upload=true
+    fi
   fi
 
   windows=false
@@ -233,9 +237,21 @@ mvnw() {
 }
 
 git_config() {
-  local name email
-  name="$(gh api --cache 5s "users/$GITHUB_ACTOR" -q '.name//.login')"
-  email="$(gh api --cache 5s "users/$GITHUB_ACTOR" -q '.email//"\(.id)+\(.login)@users.noreply.github.com"')"
+  local name email content
+  local name_selector=.name//.login
+  local email_selector='.email//"\(.id)+\(.login)@users.noreply.github.com"'
+  if command -v gh >/dev/null; then
+    name="$(gh api --cache 5s "users/$GITHUB_ACTOR" -q "$name_selector")"
+    email="$(gh api --cache 5s "users/$GITHUB_ACTOR" -q "$email_selector")"
+  elif command -v jq >/dev/null; then
+    if [ -n "$GITHUB_TOKEN" ]; then
+      content="$(curl -fsSL --header "authorization: Bearer $GITHUB_TOKEN" "https://api.github.com/users/$GITHUB_ACTOR")"
+    else
+      content="$(curl -fsSL "https://api.github.com/users/$GITHUB_ACTOR")"
+    fi
+    name="$(printf "%s\n" "$content" | jq -r "$name_selector")"
+    email="$(printf "%s\n" "$content" | jq -r "$email_selector")"
+  fi
   [ -z "$name" ] || git config --global user.name "$name"
   [ -z "$email" ] || git config --global user.email "$email"
   [ $# -eq 0 ] || "$@"

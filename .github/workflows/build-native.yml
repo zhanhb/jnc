@@ -1,18 +1,7 @@
-name: build
+name: build-native
 
 on:
-  push:
   workflow_dispatch:
-    inputs:
-      java-version:
-        type: choice
-        description: java version to deploy to sonatype snapshot repository
-        required: false
-        options:
-          - skip
-          - '8'
-          - '11'
-          - '17'
 
 jobs:
   build:
@@ -22,27 +11,16 @@ jobs:
         os:
           - ubuntu-latest
           - windows-latest
-        java-version:
-          - 8
         arch:
           - x64
           - x86
-        native:
-          - ""
-          - 1
         include:
-          - os: ubuntu-latest
-            java-version: 11
-          - os: ubuntu-latest
-            java-version: 17
           - os: macos-latest
-          - os: macos-latest
-            native: 1
-    name: test with jdk ${{ matrix.java-version || 8 }} on ${{ matrix.os }} ${{ matrix.arch }} ${{ matrix.native }}
+    name: build native on ${{ matrix.os }} ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Setup mingw-w64-x86_64-gcc
-        if: startsWith(matrix.os, 'windows') && matrix.native && matrix.arch == 'x64'
+        if: startsWith(matrix.os, 'windows') && matrix.arch == 'x64'
         uses: msys2/setup-msys2@v2
         with:
           msystem: mingw64
@@ -55,7 +33,7 @@ jobs:
             texinfo
           location: D:\
       - name: Setup mingw-w64-i686-gcc
-        if: startsWith(matrix.os, 'windows') && matrix.native && matrix.arch == 'x86'
+        if: startsWith(matrix.os, 'windows') && matrix.arch == 'x86'
         uses: msys2/setup-msys2@v2
         with:
           msystem: mingw32
@@ -68,7 +46,7 @@ jobs:
             texinfo
           location: D:\
       - name: export msys to PATH
-        if: startsWith(matrix.os, 'windows') && matrix.native
+        if: startsWith(matrix.os, 'windows')
         shell: bash
         run: |
           cp -f /etc/nsswitch.conf /D/msys64/etc/nsswitch.conf
@@ -79,7 +57,7 @@ jobs:
           D:\msys64\mingw32\bin
           EOF
       - name: setup sdk root on macos
-        if: startsWith(matrix.os, 'macos') && matrix.native
+        if: startsWith(matrix.os, 'macos')
         run: |
           sudo xcode-select -s /Library/Developer/CommandLineTools
           SDKROOT="$(cd /Library/Developer/CommandLineTools/SDKs/MacOSX11.sdk && pwd -P)"
@@ -88,75 +66,76 @@ jobs:
       - uses: actions/setup-java@v2
         with:
           distribution: liberica
-          java-version: ${{ matrix.java-version || 8 }}
+          java-version: 8
           architecture: ${{ matrix.arch || 'x64' }}
       - uses: actions/cache@v2
         env:
           cache-name: maven-dependencies
         with:
           path: ~/.m2/repository
-          key: ${{ env.cache-name }}-${{ runner.os }}-${{ matrix.native }}-${{ github.workflow }}-${{ hashFiles('.github/**', '**/pom.xml') }}
+          key: ${{ env.cache-name }}-${{ runner.os }}-1-${{ github.workflow }}-${{ hashFiles('.github/**', '**/pom.xml') }}
           restore-keys: |
-            ${{ env.cache-name }}-${{ runner.os }}-${{ matrix.native }}-${{ github.workflow }}-
-            ${{ env.cache-name }}-${{ runner.os }}-${{ matrix.native }}-
+            ${{ env.cache-name }}-${{ runner.os }}-1-${{ github.workflow }}-
+            ${{ env.cache-name }}-${{ runner.os }}-1-
             ${{ env.cache-name }}-${{ runner.os }}-
       - env:
           ARCH: ${{ matrix.arch }}
-          BUILD_NATIVE: ${{ matrix.native }}
+          BUILD_NATIVE: true
         shell: bash
         run: .github/functions.sh init_env dependency
       - env:
           ARCH: ${{ matrix.arch }}
-          BUILD_NATIVE: ${{ matrix.native }}
+          BUILD_NATIVE: true
         shell: bash
         run: .github/functions.sh init_env mvnw --color=always install
-      - name: Codecov
+      - name: upload native library
         shell: bash
         env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: bash <(curl -s https://codecov.io/bash)
+          ARCH: ${{ matrix.arch }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: .github/functions.sh git_config commit_native push
       - name: Before Cache
         shell: bash
         run: |
           ./mvnw -B --color=always build-helper:remove-project-artifact || :
           find ~/.m2/repository -type d -name '*-SNAPSHOT' \( -exec rm -rf '{}' \; -prune \)
-  deploy:
-    name: deploy
-    runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'push' && github.repository == 'java-native-call/jnc' && github.ref_name == 'master' ||
-      github.event_name == 'workflow_dispatch' && github.event.inputs.java-version > 0
-    needs: build
+
+  vagrant:
+    name: build native on ${{ matrix.image }}
+    runs-on: macos-10.15
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - freebsd-12.2
+          - freebsd-12.2-i386
+          - openbsd-6.9
+          - mcandre-openbsd-i386
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-java@v2
-        with:
-          distribution: adopt
-          java-version: ${{ github.event.inputs.java-version || 8 }}
-          server-id: ossrh
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
       - uses: actions/cache@v2
         env:
           cache-name: maven-dependencies
         with:
           path: ~/.m2/repository
-          key: ${{ env.cache-name }}-${{ runner.os }}-deploy-${{ github.workflow }}-${{ hashFiles('.github/**', '**/pom.xml') }}
+          key: ${{ env.cache-name }}-${{ runner.os }}-1-${{ github.workflow }}-${{ hashFiles('.github/**', '**/pom.xml') }}
           restore-keys: |
-            ${{ env.cache-name }}-${{ runner.os }}-deploy-${{ github.workflow }}-
-            ${{ env.cache-name }}-${{ runner.os }}-deploy-
+            ${{ env.cache-name }}-${{ runner.os }}-1-${{ github.workflow }}-
+            ${{ env.cache-name }}-${{ runner.os }}-1-
             ${{ env.cache-name }}-${{ runner.os }}-
-      - name: Maven Deploy
-        env:
-          MAVEN_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        shell: bash
+      - name: Run with vagrant
         run: |
-          version="$(./mvnw -B -N help:evaluate -Dexpression=project.version -q -DforceStdout)"
-          case "$version" in
-          *-SNAPSHOT) ./mvnw -B --color=always deploy ;;
-          *) printf '\e[31m%s\e[m\n' "skip deploy version '$version'" ;;
-          esac
+          vagrant plugin install vagrant-rsync-back
+          machine='${{ matrix.image }}'
+          SKIP_SYNC_FOLDER=1 vagrant up "$machine"
+          vagrant reload "$machine"
+          vagrant ssh "$machine" -- '/bin/sh -e' <<-EOF
+            cd /vagrant
+            BUILD_NATIVE=true UPLOAD_ARTIFACT=true .github/functions.sh init_env dependency mvnw --color=always install
+            GITHUB_ACTOR='$GITHUB_ACTOR' GITHUB_TOKEN='${{ github.token }}' .github/functions.sh git_config commit_native push
+          EOF
+          vagrant rsync-back "$machine"
+          vagrant halt "$machine"
       - name: Before Cache
         shell: bash
         run: |
