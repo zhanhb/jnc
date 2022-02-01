@@ -141,9 +141,9 @@ interface NativeAccessor {
 
     int getStringLength(long address, long limit, int terminatorLength);
 
-    void putRawAddress(long address, long value);
+    void putAddress(long address, long value);
 
-    long getRawAddress(long address);
+    long getAddress(long address);
 
     void getBytes(long address, byte[] bytes, int off, int len);
 

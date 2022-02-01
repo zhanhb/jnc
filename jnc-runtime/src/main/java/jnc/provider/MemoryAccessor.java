@@ -86,11 +86,11 @@ final class MemoryAccessor {
     }
 
     long getAddress(int offset) {
-        return NA.getRawAddress(address + offset);
+        return NA.getAddress(address + offset);
     }
 
     void putAddress(int offset, long value) {
-        NA.putRawAddress(address + offset, value);
+        NA.putAddress(address + offset, value);
     }
 
     void putInt(int offset, InternalType internalType, int value) {

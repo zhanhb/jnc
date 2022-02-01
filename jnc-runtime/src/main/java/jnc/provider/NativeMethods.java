@@ -117,10 +117,10 @@ enum NativeMethods implements NativeAccessor {
     public final native int getStringLength(long address, long limit, int terminatorLength);
 
     @Override
-    public final native void putRawAddress(long address, long value);
+    public final native void putAddress(long address, long value);
 
     @Override
-    public final native long getRawAddress(long address);
+    public final native long getAddress(long address);
 
     @Override
     public final native void getBytes(long address, byte[] bytes, int off, int len);

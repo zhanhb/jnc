@@ -76,22 +76,21 @@ DEFINE_GETTER(Double, jdouble);
 
 #define ADDRESS_ACCESS_E(name, native, jtype, j2n, n2j)             \
 EXTERNC JNIEXPORT void JNICALL                                      \
-Java_jnc_provider_NativeMethods_putRaw##name                        \
+Java_jnc_provider_NativeMethods_put##name                           \
 (JNIEnv *env, jobject UNUSED(self), jlong address, jtype value) {   \
     native * paddr = j2c(address, native);                          \
     checkNullPointer(env, paddr, /*void*/);                         \
     *paddr = j2n(value);                                            \
 }                                                                   \
 EXTERNC JNIEXPORT jtype JNICALL                                     \
-Java_jnc_provider_NativeMethods_getRaw##name                        \
+Java_jnc_provider_NativeMethods_get##name                           \
 (JNIEnv *env, jobject UNUSED(self), jlong address) {                \
     native * paddr = j2c(address, native);                          \
     checkNullPointer(env, paddr, 0);                                \
     return n2j(*paddr);                                             \
 }
 
-#define ADDRESS_ACCESS(name, jtype) \
-    ADDRESS_ACCESS_E(name, jtype, jtype, NOOP, NOOP)
+#define ADDRESS_ACCESS(name, jtype) ADDRESS_ACCESS_E(Raw ## name, jtype, jtype, NOOP, NOOP)
 ADDRESS_ACCESS(Byte, jbyte);
 ADDRESS_ACCESS(Short, jshort);
 ADDRESS_ACCESS(Char, jchar);
