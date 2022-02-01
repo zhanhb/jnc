@@ -1,31 +1,17 @@
 #include "jnc.h"
 
-/* GetStringChars is not guaranteed to be null terminated */
-#define DO_WITH_STRING_16(env, jstring, name, length, stat, ret)      \
-do {                                                                  \
-    jsize length = CALLJNI(env, GetStringLength, jstring);            \
-    if (unlikely(CALLJNI(env, ExceptionCheck))) return ret;           \
-    jchar* name = (jchar*) malloc((length + 1) * sizeof (jchar));     \
-    checkOutOfMemory(env, name, ret);                                 \
-    CALLJNI(env, GetStringRegion, jstring, 0, length, (jchar*) name); \
-    if (unlikely(CALLJNI(env, ExceptionCheck))) return ret;           \
-    name[length] = 0;                                                 \
-    stat;                                                             \
-    free(name);                                                       \
-} while (false)
-
-#define DO_WITH_STRING_UTF(env, jstring, name, length, stat, ret) \
-do {                                                              \
-    jsize length = CALLJNI(env, GetStringUTFLength, jstring);     \
-    jsize strLen_ = CALLJNI(env, GetStringLength, jstring);       \
-    if (unlikely(CALLJNI(env, ExceptionCheck))) return ret;       \
-    char *name = (char*) malloc(length + 1);                      \
-    checkOutOfMemory(env, name, ret);                             \
-    CALLJNI(env, GetStringUTFRegion, jstring, 0, strLen_, name);  \
-    if (unlikely(CALLJNI(env, ExceptionCheck))) return ret;       \
-    name[length] = 0;                                             \
-    stat;                                                         \
-    free(name);                                                   \
+#define DO_WITH_STRING_UTF(env, string, name, utfLen, stat, ret)    \
+do {                                                                \
+    jsize jlen_ = env->GetStringLength(string);                     \
+    uint32_t utfLen = env->GetStringUTFLength(string);              \
+    if (unlikely(env->ExceptionCheck())) return ret;                \
+    auto name = reinterpret_cast<char *>(malloc(utfLen + 1U));      \
+    checkOutOfMemory(env, name, ret);                               \
+    env->GetStringUTFRegion(string, 0, jlen_, name);                \
+    if (unlikely(env->ExceptionCheck())) return ret;                \
+    name[utfLen] = 0;                                               \
+    stat;                                                           \
+    free(name);                                                     \
 } while (false)
 
 #ifdef _WIN32
@@ -36,13 +22,25 @@ do {                                                              \
 #define dlopen(path, mode) (path ? LoadLibraryExW(path, nullptr, mode) : GetModuleHandleW(nullptr))
 #define dlsym(hModule, symbol) GetProcAddress(hModule, symbol)
 #define dlclose(module) !FreeLibrary(module)
+
 /* assume wchar_t on windows is 2 byte, compile error when not */
 #if WCHAR_MAX != UINT16_MAX
 #error Unsupported wchar_t type
-#else /* WCHAR_MAX != UINT16_MAX */
-#define DO_WITH_PLATFORM_STRING DO_WITH_STRING_16
-#define DLOPEN_PARAM_TYPE LPWSTR
 #endif /* WCHAR_MAX != UINT16_MAX */
+
+/* GetStringChars is not guaranteed to be null terminated */
+#define DO_WITH_PLATFORM_STRING(env, string, name, len, stat, ret)                  \
+do {                                                                                \
+    jsize len = env->GetStringLength(string);                                       \
+    if (unlikely(env->ExceptionCheck())) return ret;                                \
+    auto name = reinterpret_cast<wchar_t*>(malloc((len + 1U) * sizeof(wchar_t)));   \
+    checkOutOfMemory(env, name, ret);                                               \
+    env->GetStringRegion(string, 0, len, reinterpret_cast<jchar *>(name));          \
+    if (unlikely(env->ExceptionCheck())) return ret;                                \
+    name[len] = 0;                                                                  \
+    stat;                                                                           \
+    free(name);                                                                     \
+} while (false)
 
 #define throwByNameA(key, sig, env, name, value)                            \
 do {                                                                        \
@@ -103,7 +101,6 @@ static void throwByLastError(JNIEnv * env, const char * type) {
 
 #define HMODULE void*
 #define DO_WITH_PLATFORM_STRING DO_WITH_STRING_UTF
-#define DLOPEN_PARAM_TYPE char*
 #define throwByLastError(env, type)         \
 do {                                        \
     const char * msg_ = dlerror();          \
@@ -137,7 +134,7 @@ Java_jnc_provider_NativeMethods_dlopen
         ret = dlopen(nullptr, RTLD_LAZY);
 #endif
     } else {
-        DO_WITH_PLATFORM_STRING(env, path, buf, len, ret = dlopen((DLOPEN_PARAM_TYPE) (void*) buf, JNC2RTLD(mode)), 0);
+        DO_WITH_PLATFORM_STRING(env, path, buf, len, ret = dlopen(buf, JNC2RTLD(mode)), 0);
     }
     if (unlikely(nullptr == ret)) {
         throwByLastError(env, UnsatisfiedLink);
