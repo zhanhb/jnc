@@ -7,8 +7,8 @@
  * Signature: (JLjava/lang/String;)V
  */
 EXTERNC JNIEXPORT void JNICALL
-Java_jnc_provider_NativeMethods_putStringUTF
-(JNIEnv *env, jobject UNUSED(self), jlong laddr, jstring value) {
+Java_jnc_provider_NativeMethods_putStringUTF(
+        JNIEnv *env, jobject, jlong laddr, jstring value) {
     char *paddr = j2c(laddr, char);
     checkNullPointer(env, paddr, /*void*/);
     checkNullPointer(env, value, /*void*/);
@@ -27,8 +27,8 @@ Java_jnc_provider_NativeMethods_putStringUTF
  * Method:    getStringUTFLength
  * Signature: (Ljava/lang/String;)I
  */
-EXTERNC JNIEXPORT jint JNICALL Java_jnc_provider_NativeMethods_getStringUTFLength
-(JNIEnv *env, jobject UNUSED(self), jstring value) {
+EXTERNC JNIEXPORT jint JNICALL Java_jnc_provider_NativeMethods_getStringUTFLength(
+        JNIEnv *env, jobject, jstring value) {
     checkNullPointer(env, value, 0);
     return env->GetStringUTFLength(value);
 }
@@ -58,8 +58,8 @@ static size_t get_string_length_2(const jchar * const addr, jlong limit) noexcep
  * Signature: (JJ)Ljava/lang/String;
  */
 EXTERNC JNIEXPORT jstring JNICALL
-Java_jnc_provider_NativeMethods_getStringUTF
-(JNIEnv *env, jobject UNUSED(self), jlong laddr, jlong limit) {
+Java_jnc_provider_NativeMethods_getStringUTF(
+        JNIEnv *env, jobject, jlong laddr, jlong limit) {
     const char *const paddr = j2c(laddr, char);
     checkNullPointer(env, paddr, nullptr);
     if (limit == 0) return env->NewStringUTF("");
@@ -87,8 +87,8 @@ Java_jnc_provider_NativeMethods_getStringUTF
  * Method:    putStringChar16
  * Signature: (JLjava/lang/String;)V
  */
-EXTERNC JNIEXPORT void JNICALL Java_jnc_provider_NativeMethods_putStringChar16
-(JNIEnv *env, jobject UNUSED(self), jlong laddr, jstring value) {
+EXTERNC JNIEXPORT void JNICALL Java_jnc_provider_NativeMethods_putStringChar16(
+        JNIEnv *env, jobject, jlong laddr, jstring value) {
     jchar * const paddr = j2c(laddr, jchar);
     checkNullPointer(env, paddr, /*void*/);
     checkNullPointer(env, value, /*void*/);
@@ -104,8 +104,8 @@ EXTERNC JNIEXPORT void JNICALL Java_jnc_provider_NativeMethods_putStringChar16
  * Method:    getStringChar16
  * Signature: (JJ)Ljava/lang/String;
  */
-EXTERNC JNIEXPORT jstring JNICALL Java_jnc_provider_NativeMethods_getStringChar16
-(JNIEnv *env, jobject UNUSED(self), jlong laddr, jlong limit) {
+EXTERNC JNIEXPORT jstring JNICALL Java_jnc_provider_NativeMethods_getStringChar16(
+        JNIEnv *env, jobject, jlong laddr, jlong limit) {
     const jchar * const paddr = j2c(laddr, jchar);
     checkNullPointer(env, paddr, nullptr);
     if (limit == 0) return env->NewStringUTF("");
@@ -158,8 +158,8 @@ static size_t get_string_length_4(const jint * const addr, jlong limit) {
  * Method:    getStringLength
  * Signature: (JJI)I
  */
-EXTERNC JNIEXPORT jint JNICALL Java_jnc_provider_NativeMethods_getStringLength
-(JNIEnv *env, jobject UNUSED(self), jlong laddr, jlong limit, jint terminatorLength) {
+EXTERNC JNIEXPORT jint JNICALL Java_jnc_provider_NativeMethods_getStringLength(
+        JNIEnv *env, jobject, jlong laddr, jlong limit, jint terminatorLength) {
     const void *const paddr = j2vp(laddr);
     checkNullPointer(env, paddr, 0);
     if (unlikely(limit < 0)) goto iae;

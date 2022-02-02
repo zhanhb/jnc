@@ -42,24 +42,23 @@ do {                                                                            
     free(name);                                                                     \
 } while (false)
 
-#define throwByNameA(key, sig, env, name, value)                            \
-do {                                                                        \
-    jclass jc_ = CALLJNI(env, FindClass, name);                             \
-    if (unlikely(CALLJNI(env, ExceptionCheck))) break;                      \
-    jmethodID jm_ = CALLJNI(env, GetMethodID, jc_, "<init>", "(" sig ")V"); \
-    if (unlikely(CALLJNI(env, ExceptionCheck))) break;                      \
-    jvalue jv_;                                                             \
-    jv_.key = value;                                                        \
-    auto jo_ = reinterpret_cast<jthrowable>                                 \
-        (CALLJNI(env, NewObjectA, jc_, jm_, &jv_));                         \
-    if (unlikely(CALLJNI(env, ExceptionCheck))) break;                      \
-    CALLJNI(env, Throw, jo_);                                               \
-    CALLJNI(env, DeleteLocalRef, jo_);                                      \
+#define throwByNameA(key, sig, env, name, value)                \
+do {                                                            \
+    jclass jc_ = env->FindClass(name);                          \
+    if (unlikely(env->ExceptionCheck())) break;                 \
+    auto jm_ = env->GetMethodID(jc_, "<init>", "(" sig ")V");   \
+    if (unlikely(env->ExceptionCheck())) break;                 \
+    jvalue jv_;                                                 \
+    jv_.key = value;                                            \
+    auto jo_ = env->NewObjectA(jc_, jm_, &jv_);                 \
+    if (unlikely(env->ExceptionCheck())) break;                 \
+    env->Throw(reinterpret_cast<jthrowable>(jo_));              \
+    env->DeleteLocalRef(jo_);                                   \
 } while (false)
 
 #define throwByNameString(...) throwByNameA(l, "Ljava/lang/String;", __VA_ARGS__)
 
-static void throwByLastError(JNIEnv * env, const char * type) {
+static void throwByLastError(JNIEnv *env, const char *type) {
     DWORD dw = GetLastError();
     LPWSTR lpMsgBuf = nullptr;
     if (unlikely(!FormatMessageW(
@@ -69,7 +68,7 @@ static void throwByLastError(JNIEnv * env, const char * type) {
             nullptr,
             dw,
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            (LPWSTR) & lpMsgBuf,
+            reinterpret_cast<LPWSTR>(&lpMsgBuf),
             0, nullptr))) {
         throwByName(env, OutOfMemory, nullptr);
         return;
@@ -77,11 +76,11 @@ static void throwByLastError(JNIEnv * env, const char * type) {
     // trust system call return value
     // assume lpMsgBuf is not nullptr
     size_t len = wcslen(lpMsgBuf);
-    if (likely(len > 0 && lpMsgBuf[len - 1] == '\n'))--len;
-    if (likely(len > 0 && lpMsgBuf[len - 1] == '\r'))--len;
-    jstring string = CALLJNI(env, NewString, (jchar*) lpMsgBuf, len);
+    if (likely(len > 0 && lpMsgBuf[len - 1] == '\n')) --len;
+    if (likely(len > 0 && lpMsgBuf[len - 1] == '\r')) --len;
+    jstring string = env->NewString(reinterpret_cast<jchar *>(lpMsgBuf), static_cast<jsize>(len));
     LocalFree(lpMsgBuf);
-    if (unlikely(CALLJNI(env, ExceptionCheck))) return;
+    if (unlikely(env->ExceptionCheck())) return;
     throwByNameString(env, type, string);
 }
 
@@ -124,8 +123,8 @@ do {                                        \
  * Signature: (Ljava/lang/String;I)J
  */
 EXTERNC JNIEXPORT jlong JNICALL
-Java_jnc_provider_NativeMethods_dlopen
-(JNIEnv *env, jobject UNUSED(self), jstring path, jint mode) {
+Java_jnc_provider_NativeMethods_dlopen(
+        JNIEnv *env, jobject, jstring path, jint mode) {
     HMODULE ret = nullptr;
     if (unlikely(nullptr == path)) {
 #ifdef __BIONIC__
@@ -148,8 +147,8 @@ Java_jnc_provider_NativeMethods_dlopen
  * Signature: (JLjava/lang/String;)J
  */
 EXTERNC JNIEXPORT jlong JNICALL
-Java_jnc_provider_NativeMethods_dlsym
-(JNIEnv *env, jobject UNUSED(self), jlong lhandle, jstring symbol) {
+Java_jnc_provider_NativeMethods_dlsym(
+        JNIEnv *env, jobject, jlong lhandle, jstring symbol) {
     HMODULE hModule = j2p(lhandle, HMODULE);
     checkNullPointer(env, hModule, 0);
     checkNullPointer(env, symbol, 0);
@@ -168,8 +167,8 @@ Java_jnc_provider_NativeMethods_dlsym
  * Signature: (J)V
  */
 EXTERNC JNIEXPORT void JNICALL
-Java_jnc_provider_NativeMethods_dlclose
-(JNIEnv *env, jobject UNUSED(self), jlong lhandle) {
+Java_jnc_provider_NativeMethods_dlclose(
+        JNIEnv *env, jobject, jlong lhandle) {
     HMODULE hModule = j2p(lhandle, HMODULE);
     checkNullPointer(env, hModule, /*void*/);
 #ifdef _WIN32

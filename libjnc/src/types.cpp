@@ -90,8 +90,7 @@ typedef int errno_t;
  * Signature: (Ljava/util/Map;)V
  */
 EXTERNC JNIEXPORT void JNICALL
-Java_jnc_provider_NativeMethods_initAlias
-(JNIEnv *env, jobject UNUSED(self), jobject obj) {
+Java_jnc_provider_NativeMethods_initAlias(JNIEnv *env, jobject, jobject obj) {
     checkNullPointer(env, obj, /*void*/);
 
     const struct {
@@ -220,8 +219,7 @@ Java_jnc_provider_NativeMethods_initAlias
  * Signature: ()[[J
  */
 EXTERNC JNIEXPORT jobjectArray JNICALL
-Java_jnc_provider_NativeMethods_getTypes
-(JNIEnv *env, jobject UNUSED(self)) {
+Java_jnc_provider_NativeMethods_getTypes(JNIEnv *env, jobject) {
 #define F(value) &ffi_type_##value
     ffi_type * addrs[] = {
         F(void), F(float), F(double), F(pointer),

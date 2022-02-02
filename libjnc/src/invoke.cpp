@@ -13,8 +13,7 @@
  * Signature: ()J
  */
 EXTERNC JNIEXPORT jlong JNICALL
-Java_jnc_provider_NativeMethods_getCifInfo
-        (JNIEnv *UNUSED(env), jobject UNUSED(self)) {
+Java_jnc_provider_NativeMethods_getCifInfo(JNIEnv *, jobject) {
     auto size = sizeof(ffi_cif);
     auto align = alignof(ffi_cif);
 
@@ -61,8 +60,8 @@ static void checkReturnValue(JNIEnv *env, ffi_status status) {
  * Signature: (JIIJJ)V
  */
 EXTERNC JNIEXPORT void JNICALL
-Java_jnc_provider_NativeMethods_prepareInvoke
-(JNIEnv *env, jobject UNUSED(self), jlong lcif, jint abi, jint nargs,
+Java_jnc_provider_NativeMethods_prepareInvoke(
+        JNIEnv *env, jobject, jlong lcif, jint abi, jint nargs,
         jlong lrtype, jlong latype) {
     ffi_cif *pcif = j2c(lcif, ffi_cif);
     ffi_type *prtype = j2c(lrtype, ffi_type);
@@ -78,8 +77,8 @@ Java_jnc_provider_NativeMethods_prepareInvoke
  * Method:    prepareInvokeVariadic
  * Signature: (JIIIJJ)V
  */
-EXTERNC JNIEXPORT void JNICALL Java_jnc_provider_NativeMethods_prepareInvokeVariadic
-(JNIEnv *env, jobject UNUSED(self), jlong lcif, jint abi, jint nfixedargs,
+EXTERNC JNIEXPORT void JNICALL Java_jnc_provider_NativeMethods_prepareInvokeVariadic(
+        JNIEnv *env, jobject, jlong lcif, jint abi, jint nfixedargs,
         jint ntotalargs, jlong lrtype, jlong latype) {
     ffi_cif *pcif = j2c(lcif, ffi_cif);
     ffi_type *prtype = j2c(lrtype, ffi_type);
@@ -143,8 +142,8 @@ union result_t {
  * Signature: (JJJ[ILjava/lang/Object;J)J
  */
 EXTERNC JNIEXPORT jlong JNICALL
-Java_jnc_provider_NativeMethods_invoke
-(JNIEnv * env, jobject UNUSED(self), jlong lcif, jlong jfun,
+Java_jnc_provider_NativeMethods_invoke(
+        JNIEnv *env, jobject, jlong lcif, jlong jfun,
         jlong base, jintArray offsets, jobject obj,
         jlong methodId) {
     ffi_cif *pcif = j2c(lcif, ffi_cif);

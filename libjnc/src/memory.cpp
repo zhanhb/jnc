@@ -7,8 +7,7 @@
  * Signature: (J)J
  */
 EXTERNC JNIEXPORT jlong JNICALL
-Java_jnc_provider_NativeMethods_allocateMemory
-(JNIEnv *env, jobject UNUSED(self), jlong size) {
+Java_jnc_provider_NativeMethods_allocateMemory(JNIEnv *env, jobject, jlong size) {
     if (unlikely(size < 0)) {
         throwByName(env, IllegalArgument, nullptr);
         return 0;
@@ -30,8 +29,8 @@ Java_jnc_provider_NativeMethods_allocateMemory
  * Signature: (JJJ)V
  */
 EXTERNC JNIEXPORT void JNICALL
-Java_jnc_provider_NativeMethods_copyMemory
-(JNIEnv *env, jobject UNUSED(self), jlong ldst, jlong lsrc, jlong n) {
+Java_jnc_provider_NativeMethods_copyMemory(
+        JNIEnv *env, jobject, jlong ldst, jlong lsrc, jlong n) {
     if (unlikely(n < 0)) {
         throwByName(env, IllegalArgument, nullptr);
         return;
@@ -53,8 +52,7 @@ Java_jnc_provider_NativeMethods_copyMemory
  * Signature: (J)V
  */
 EXTERNC JNIEXPORT void JNICALL
-Java_jnc_provider_NativeMethods_freeMemory
-(JNIEnv *UNUSED(env), jobject UNUSED(self), jlong laddr) {
+Java_jnc_provider_NativeMethods_freeMemory(JNIEnv *, jobject, jlong laddr) {
     /* free(nullptr) should be noop, it's a good habbit to check null */
     void *paddr = j2vp(laddr);
     if (likely(nullptr != paddr)) {
