@@ -1,5 +1,4 @@
 #include "jnc.h"
-#include "commons.h"
 
 /*
  * Class:     jnc_provider_NativeMethods
@@ -12,7 +11,7 @@ Java_jnc_provider_NativeMethods_allocateMemory(JNIEnv *env, jobject, jlong size)
         throwByName(env, IllegalArgument, nullptr);
         return 0;
     }
-    if (unlikely(is_sizet_large_enough(size))) {
+    if (unlikely(uint64_t(size) > uint64_t(SIZE_MAX))) {
         throwByName(env, OutOfMemory, nullptr);
         return 0;
     }
@@ -35,7 +34,7 @@ Java_jnc_provider_NativeMethods_copyMemory(
         throwByName(env, IllegalArgument, nullptr);
         return;
     }
-    if (unlikely(is_sizet_large_enough(n))) {
+    if (unlikely(uint64_t(n) > uint64_t(SIZE_MAX))) {
         throwByName(env, IllegalArgument, nullptr);
         return;
     }

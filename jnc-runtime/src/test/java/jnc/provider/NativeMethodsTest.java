@@ -117,7 +117,7 @@ public class NativeMethodsTest {
     public void testGetStringUTFEmpty() {
         long address = NA.allocateMemory(0);
         try {
-            String string = NA.getStringUTF(address, Long.MAX_VALUE);
+            String string = NA.getStringUTF(address, -1);
             assertEquals("", string);
         } finally {
             NA.freeMemory(address);
@@ -159,7 +159,7 @@ public class NativeMethodsTest {
             memory.getCharArray(0, arr1, 0, arr1.length);
             assertArrayEquals(expect.toCharArray(), arr1);
 
-            assertHexEquals(expect, NA.getStringChar16(address, Long.MAX_VALUE), "aligned access");
+            assertHexEquals(expect, NA.getStringChar16(address, -1), "aligned access");
             assertHexEquals(expect, NA.getStringChar16(address, 8), "aligned access with limit");
             assertHexEquals(value.substring(0, 3), NA.getStringChar16(address, 7), "aligned access with limit");
         }
@@ -171,7 +171,7 @@ public class NativeMethodsTest {
             } else {
                 expect = "\u0401\u0603\u0805\u0007\u0700\u0008";
             }
-            assertHexEquals(expect, NA.getStringChar16(address + 1, Long.MAX_VALUE), "unaligned access");
+            assertHexEquals(expect, NA.getStringChar16(address + 1, -1), "unaligned access");
         }
 
         {
@@ -230,7 +230,7 @@ public class NativeMethodsTest {
             assertThat(NA.getStringLength(pointer.address(), 0, terminatorLength))
                     .describedAs("terminatorLength=%s", terminatorLength)
                     .isEqualTo(0);
-            assertThat(NA.getStringLength(pointer.address(), Long.MAX_VALUE, terminatorLength))
+            assertThat(NA.getStringLength(pointer.address(), -1, terminatorLength))
                     .describedAs("terminatorLength=%s", terminatorLength)
                     .isEqualTo(8 / terminatorLength);
             assertThat(NA.getStringLength(pointer.address(), 4, terminatorLength))
