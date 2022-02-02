@@ -38,7 +38,7 @@ static size_t get_string_length_2(const jchar * const addr, jlong limit) noexcep
     if (is_sizet_large_enough(limit)) {
 #if WCHAR_MAX == UINT16_MAX
         // on windows
-        return wcslen((wchar_t*) addr);
+        return wcslen(reinterpret_cast<const wchar_t *>(addr));
 #else
         const jchar *p = addr;
         while (*p) ++p;
@@ -65,14 +65,13 @@ Java_jnc_provider_NativeMethods_getStringUTF(
     if (limit == 0) return env->NewStringUTF("");
     if (unlikely(limit < 0)) {
         throwByName(env, IllegalArgument, nullptr);
-        return 0;
+        return nullptr;
     }
     if (is_sizet_large_enough(limit)) return env->NewStringUTF(paddr);
-    size_t szLimit = limit;
-    const char *p = paddr;
-    for (size_t n = szLimit; n; --n) {
-        if (!*p++) return env->NewStringUTF(paddr);
-    }
+    auto szLimit = static_cast<size_t>(limit);
+    auto p = reinterpret_cast<const char *>(memchr(paddr, 0, szLimit));
+    if (p) return env->NewStringUTF(paddr);
+
     char *tmp = (char *) malloc(szLimit + 1);
     checkOutOfMemory(env, tmp, nullptr);
     memcpy(tmp, paddr, szLimit);
@@ -120,31 +119,29 @@ EXTERNC JNIEXPORT jstring JNICALL Java_jnc_provider_NativeMethods_getStringChar1
         throwByName(env, OutOfMemory, nullptr);
         return nullptr;
     }
-    return env->NewString(paddr, len);
+    return env->NewString(paddr, static_cast<jsize>(len));
 }
 
 static size_t get_string_length_1(const char *const addr, jlong limit) {
     if (is_sizet_large_enough(limit)) {
         return strlen(addr);
     } else {
-        size_t szLimit = limit;
-        // Behavior of `memchr` is not defined if not found in searching range.
-        const char *p = addr;
-        while (szLimit-- > 0 && *p) ++p;
-        return p - addr;
+        auto p = reinterpret_cast<const char *>(memchr(addr, 0, limit));
+        return p ? p - addr : limit;
     }
 }
 
 static size_t get_string_length_4(const jint * const addr, jlong limit) {
     if (is_sizet_large_enough(limit)) {
-#if WCHAR_MAX == UINT32_MAX
-        return wcslen(reinterpret_cast<wchar_t*> (addr));
-#else
-        // on Windows
+        // got incorrect result when perform unaligned access on glibc
+        // https://stackoverflow.com/q/58510203
+        //#if WCHAR_MAX == UINT32_MAX || WCHAR_MAX == INT32_MAX
+        //return wcslen(reinterpret_cast<const wchar_t *> (addr));
+        //#else
         const jint *p = addr;
         while (*p) ++p;
         return p - addr;
-#endif
+        //#endif
     } else {
         size_t szLimit = limit / sizeof (jint);
         const jint *p = addr;
