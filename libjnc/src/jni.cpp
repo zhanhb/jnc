@@ -76,6 +76,18 @@ JNIEXPORT jclass JNICALL Java_jnc_provider_NativeMethods_defineClass(
 
 /*
  * Class:     jnc_provider_NativeMethods
+ * Method:    findClass
+ * Signature: (Ljava/lang/String;)Ljava/lang/Class;
+ */
+JNIEXPORT jclass JNICALL Java_jnc_provider_NativeMethods_findClass(
+        JNIEnv *env, jobject, jstring name) {
+    checkNullPointer(env, name, nullptr);
+    StringUTFChars cname(env, name);
+    return env->FindClass(cname);
+}
+
+/*
+ * Class:     jnc_provider_NativeMethods
  * Method:    fromReflectedMethod
  * Signature: (Ljava/lang/reflect/Method;)J
  */
@@ -83,6 +95,135 @@ JNIEXPORT jlong JNICALL Java_jnc_provider_NativeMethods_fromReflectedMethod(
         JNIEnv *env, jobject, jobject method) {
     checkNullPointer(env, method, 0);
     return p2j(env->FromReflectedMethod(method));
+}
+
+/*
+ * Class:     jnc_provider_NativeMethods
+ * Method:    fromReflectedField
+ * Signature: (Ljava/lang/reflect/Field;)J
+ */
+JNIEXPORT jlong JNICALL Java_jnc_provider_NativeMethods_fromReflectedField(
+        JNIEnv *env, jobject, jobject field) {
+    checkNullPointer(env, field, 0);
+    return p2j(env->FromReflectedField(field));
+}
+
+/*
+ * Class:     jnc_provider_NativeMethods
+ * Method:    toReflectedMethod
+ * Signature: (Ljava/lang/Class;JZ)Ljava/lang/reflect/Method;
+ */
+JNIEXPORT jobject JNICALL Java_jnc_provider_NativeMethods_toReflectedMethod
+        (JNIEnv *env, jobject, jclass cls, jlong methodId, jboolean isStatic) {
+    checkNullPointer(env, cls, nullptr);
+    jmethodID method = j2p(methodId, jmethodID);
+    checkNullPointer(env, method, nullptr);
+    return env->ToReflectedMethod(cls, method, isStatic);
+}
+
+/*
+ * Class:     jnc_provider_NativeMethods
+ * Method:    toReflectedField
+ * Signature: (Ljava/lang/Class;JZ)Ljava/lang/reflect/Field;
+ */
+JNIEXPORT jobject JNICALL Java_jnc_provider_NativeMethods_toReflectedField(
+        JNIEnv *env, jobject, jclass cls, jlong fieldId, jboolean isStatic) {
+    checkNullPointer(env, cls, nullptr);
+    jfieldID field = j2p(fieldId, jfieldID);
+    checkNullPointer(env, field, nullptr);
+    return env->ToReflectedField(cls, field, isStatic);
+}
+
+/*
+ * Class:     jnc_provider_NativeMethods
+ * Method:    allocateInstance
+ * Signature: (Ljava/lang/Class;)Ljava/lang/Object;
+ */
+JNIEXPORT jobject JNICALL Java_jnc_provider_NativeMethods_allocateInstance(
+        JNIEnv *env, jobject, jclass cls) {
+    checkNullPointer(env, cls, nullptr);
+    return env->AllocObject(cls);
+}
+
+/*
+ * Class:     jnc_provider_NativeMethods
+ * Method:    getMethodId
+ * Signature: (Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_jnc_provider_NativeMethods_getMethodId(
+        JNIEnv *env, jobject, jclass clazz, jstring name, jstring sig) {
+    checkNullPointer(env, clazz, 0);
+    checkNullPointer(env, name, 0);
+    checkNullPointer(env, sig, 0);
+    StringUTFChars cname(env, name);
+    if (unlikely(env->ExceptionCheck())) return 0;
+    StringUTFChars csig(env, sig);
+    if (unlikely(env->ExceptionCheck())) return 0;
+    return p2j(env->GetMethodID(clazz, cname, csig));
+}
+
+/*
+ * Class:     jnc_provider_NativeMethods
+ * Method:    getFieldId
+ * Signature: (Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_jnc_provider_NativeMethods_getFieldId(
+        JNIEnv *env, jobject, jclass clazz, jstring name, jstring sig) {
+    checkNullPointer(env, clazz, 0);
+    checkNullPointer(env, name, 0);
+    checkNullPointer(env, sig, 0);
+    StringUTFChars cname(env, name);
+    if (unlikely(env->ExceptionCheck())) return 0;
+    StringUTFChars csig(env, sig);
+    if (unlikely(env->ExceptionCheck())) return 0;
+    return p2j(env->GetFieldID(clazz, cname, csig));
+}
+
+/*
+ * Class:     jnc_provider_NativeMethods
+ * Method:    getStaticMethodId
+ * Signature: (Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_jnc_provider_NativeMethods_getStaticMethodId(
+        JNIEnv *env, jobject, jclass clazz, jstring name, jstring sig) {
+    checkNullPointer(env, clazz, 0);
+    checkNullPointer(env, name, 0);
+    checkNullPointer(env, sig, 0);
+    StringUTFChars cname(env, name);
+    if (unlikely(env->ExceptionCheck())) return 0;
+    StringUTFChars csig(env, sig);
+    if (unlikely(env->ExceptionCheck())) return 0;
+    return p2j(env->GetStaticMethodID(clazz, cname, csig));
+}
+
+/*
+ * Class:     jnc_provider_NativeMethods
+ * Method:    getStaticFieldId
+ * Signature: (Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_jnc_provider_NativeMethods_getStaticFieldId(
+        JNIEnv *env, jobject, jclass clazz, jstring name, jstring sig) {
+    checkNullPointer(env, clazz, 0);
+    checkNullPointer(env, name, 0);
+    checkNullPointer(env, sig, 0);
+    StringUTFChars cname(env, name);
+    if (unlikely(env->ExceptionCheck())) return 0;
+    StringUTFChars csig(env, sig);
+    if (unlikely(env->ExceptionCheck())) return 0;
+    return p2j(env->GetStaticFieldID(clazz, cname, csig));
+}
+
+/*
+ * Class:     jnc_provider_NativeMethods
+ * Method:    newDirectByteBuffer
+ * Signature: (JJ)Ljava/nio/ByteBuffer;
+ */
+JNIEXPORT jobject JNICALL Java_jnc_provider_NativeMethods_newDirectByteBuffer(
+        JNIEnv *env, jobject, jlong addr, jlong capacity) {
+    auto ptr = j2vp(addr);
+    checkNullPointer(env, ptr, nullptr);
+    if (unlikely(capacity < 0)) throwByName(env, IllegalArgument, nullptr);
+    return env->NewDirectByteBuffer(ptr, capacity);
 }
 
 /*

@@ -1,5 +1,6 @@
 package jnc.provider;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -201,11 +202,45 @@ enum NativeMethods implements NativeAccessor {
     public final native Class<?> defineClass(@Nullable String name, @Nullable ClassLoader loader, byte[] buf);
 
     @Override
+    public final native Class<?> findClass(String name);
+
+    @Override
     public final long getMethodId(Method method) {
         return fromReflectedMethod(method);
     }
 
     private native long fromReflectedMethod(Method method);
+
+    @Override
+    public final long getFieldId(Field field) {
+        return fromReflectedField(field);
+    }
+
+    private native long fromReflectedField(Field field);
+
+    @Override
+    public final native Method toReflectedMethod(Class<?> klass, long methodID, boolean isStatic);
+
+    @Override
+    public final native Field toReflectedField(Class<?> klass, long fieldId, boolean isStatic);
+
+    @Override
+    public final native <T> T allocateInstance(Class<T> klass) throws InstantiationException;
+
+    @Override
+    public final native long getMethodId(Class<?> klass, String name, String sig);
+
+    @Override
+    public final native long getFieldId(Class<?> klass, String name, String sig);
+
+    @Override
+    public final native long getStaticMethodId(Class<?> klass, String name, String sig);
+
+    @Override
+    public final native long getStaticFieldId(Class<?> klass, String name, String sig);
+
+    @Override
+    public final native ByteBuffer newDirectByteBuffer(long address, long capacity);
 
     @Override
     public final long getAddress(ByteBuffer buffer) {

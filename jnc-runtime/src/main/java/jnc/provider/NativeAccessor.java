@@ -16,6 +16,7 @@
 package jnc.provider;
 
 import java.lang.annotation.Native;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -213,9 +214,31 @@ interface NativeAccessor {
 
     Class<?> defineClass(@Nullable String name, @Nullable ClassLoader loader, byte[] buf);
 
+    Class<?> findClass(String name);
+
     default long getMethodId(Method method) {
         return 0;
     }
+
+    default long getFieldId(Field field) {
+        return 0;
+    }
+
+    Method toReflectedMethod(Class<?> klass, long methodId, boolean isStatic);
+
+    Field toReflectedField(Class<?> klass, long fieldId, boolean isStatic);
+
+    <T> T allocateInstance(Class<T> klass) throws InstantiationException;
+
+    long getMethodId(Class<?> klass, String name, String sig);
+
+    long getFieldId(Class<?> klass, String name, String sig);
+
+    long getStaticMethodId(Class<?> klass, String name, String sig);
+
+    long getStaticFieldId(Class<?> klass, String name, String sig);
+
+    ByteBuffer newDirectByteBuffer(long address, long capacity);
 
     long getAddress(ByteBuffer buffer);
 
