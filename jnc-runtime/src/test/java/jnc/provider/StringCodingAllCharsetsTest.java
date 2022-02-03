@@ -14,6 +14,7 @@ import java.nio.charset.CodingErrorAction;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,8 +31,10 @@ public class StringCodingAllCharsetsTest {
     private static final ThreadLocal<Pointer> POINTER = ThreadLocal.withInitial(() -> AllocatedMemory.allocate(CAPACITY));
 
     public static List<Arguments> data() {
+        Pattern pattern = Pattern.compile("(?i)COMPOUND[-_]TEXT");
         return Charset.availableCharsets().values().stream()
                 .filter(Charset::canEncode)
+                .filter(charset -> !pattern.matcher(charset.name()).find())
                 .map(Arguments::arguments)
                 .collect(toList());
     }
@@ -49,7 +52,8 @@ public class StringCodingAllCharsetsTest {
         ByteBuffer out = ByteBuffer.allocate(20);
         CharBuffer cb = CharBuffer.allocate(20);
         for (int i = 1; i < 65536; ++i) {
-            array[0] = (char) i;
+            char ch = (char) i;
+            array[0] = ch;
             out.clear();
             try {
                 if (!encoder.reset().encode(CharBuffer.wrap(array), out, true).isUnderflow()) {
@@ -68,10 +72,10 @@ public class StringCodingAllCharsetsTest {
                 continue;
             }
             cb.flip();
-            if (cb.remaining() != 1 || cb.get() != i) {
+            if (cb.remaining() != 1 || cb.get() != ch) {
                 continue;
             }
-            buf.append((char) i);
+            buf.append(ch);
         }
         assertThat(buf).describedAs("supported characters of %s", charset)
                 .hasSizeGreaterThan(100);
